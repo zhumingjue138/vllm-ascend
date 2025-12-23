@@ -1,5 +1,7 @@
 import copy
 import os
+from PIL import Image
+import uuid
 
 import pytest
 import socket
