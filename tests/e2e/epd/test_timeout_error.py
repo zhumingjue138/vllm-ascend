@@ -15,6 +15,7 @@ from vllm.utils import get_open_port
 from vllm.multimodal.image import convert_image_mode
 from vllm import SamplingParams
 from lm_service.apis.vllm.proxy import Proxy
+from pathlib import Path
 
 model_path = load_config().get("model_path")
 MODELS = [os.path.join(model_path, "Qwen2.5-VL-7B-Instruct")]
