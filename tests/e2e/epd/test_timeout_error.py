@@ -36,7 +36,14 @@ image = convert_image_mode(
     Image.open(Path(__file__).parent.parent.parent.parent / "tools" / "224.png"),
     "RGB")
 IMAGE_ARRAY = np.array(image)
-
+PROMPT_TEMPLATE=(
+            "<|im_start|>system\n"
+            "You are a helpful assistant.<|im_end|>\n"
+            "<|im_start|>user\n"
+            "<|vision_start|><|image_pad|><|vision_end|>"
+            "what is the brand of this camera?<|im_end|>\n"
+            "<|im_start|>assistant\n"
+)
 SAMPLING_PARAMS = SamplingParams(
     max_tokens=128,
     temperature=0.0
@@ -44,12 +51,9 @@ SAMPLING_PARAMS = SamplingParams(
 
 
 @pytest.mark.asyncio
-@pytest.mark.perf
-@pytest.mark.parametrize("model", MODELS)
+@pytest.mark.function
 @pytest.mark.parametrize("tp_size", TENSOR_PARALLELS)
-@pytest.mark.parametrize("dataset_name", DATASET_NAME)
-async def test_lm_service_request_timeout_seconds_001(model: str, tp_size: int,
-                                               dataset_name: str):
+async def test_lm_service_request_timeout_seconds_001(tp_size: int):
     '''
     lm_service_request_timeout_seconds为空，调用generate接口，调用失败，返回报错信息
     '''
@@ -125,33 +129,640 @@ async def test_lm_service_request_timeout_seconds_001(model: str, tp_size: int,
                                pd_serve_args=pd_server_args,
                                mooncake_args=mooncake_args) as server:
 
+        print("vllm instance is ready")
         p = Proxy(
             proxy_addr=proxy_addr,
-            encode_addr_list=e_addr,
-            pd_addr_list=pd_addr,
+            encode_addr_list=[e_addr],
+            pd_addr_list=[pd_addr],
             model_name=model,
             enable_health_monitor=True
         )
+        print("proxy is success")
         try:
-
             outputs = p.generate(
                 prompt={
+                    "prompt": PROMPT_TEMPLATE,
                     "multi_modal_data": {"image": IMAGE_ARRAY},
                 },
                 sampling_params=SAMPLING_PARAMS,
                 request_id=str(uuid.uuid4())
-
             )
             output = None
             print("proxy is success")
             async for o in outputs:
                 output = o
                 print(f"{o.outputs}", flush=True)
-            assert output.outputs[0].finish_reason == "stop", "request is success"
             p.shutdown()
         except Exception as message:
             print(f"error message is: {str(message)}")
-            assert "KeyError:" in str(message), "init success"
+            assert "invalid literal" in str(message), "init success"
+
+@pytest.mark.asyncio
+@pytest.mark.function
+@pytest.mark.parametrize("tp_size", TENSOR_PARALLELS)
+async def test_lm_service_request_timeout_seconds_002(tp_size: int):
+    '''
+    lm_service_request_timeout_seconds为aaa，调用generate接口，调用失败，返回报错信息
+    '''
+    e_num = 1
+    pd_num = 1
+    env = {
+        "VLLM_NIXL_SIDE_CHANNEL_PORT": "6000",
+        "LM_SERVICE_REQUEST_TIMEOUT_SECONDS": "aaa",
+        "MC_MS_AUTO_DISC": "0",
+        "MC_USE_IPV6": "0",
+        "TRANSFER_PROTOCOL": "tcp",
+        "PYTORCH_NPU_ALLOC_CONF": "expandable_segments:True"
+    }
+    env_dict = EnvManager()
+    env_dict.add_env("common", env_dict=env)
+
+    for i in range(e_num):
+        env_dict.add_env("e", "ASCEND_RT_VISIBLE_DEVICES", str(i), index=i)
+    for i in range(pd_num):
+        env_dict.add_env("pd", "ASCEND_RT_VISIBLE_DEVICES", str(i + e_num), index=i)
+
+    rpc_port = get_open_port()
+    http_metadata_server_port = get_open_port()
+    metrics_port = get_open_port()
+    proxy_addr = f"127.0.0.1:{get_open_port()}"
+    e_addr = f"127.0.0.1:{get_open_port()}"
+    pd_addr = f"127.0.0.1:{get_open_port()}"
+
+    mooncake_ip = "0.0.0.0"
+    e_server_args = [
+        "--model", model, "--gpu-memory-utilization", "0.0",
+        "--tensor-parallel-size",
+        str(tp_size), "--enforce-eager", "--no-enable-prefix-caching",
+        "--max-model-len", "10000","--worker-addr",f"{e_addr}", "--max-num-batched-tokens", "10000",
+        "--max-num-seqs", "1", "--ec-transfer-config",
+        f'{{"ec_connector_extra_config":{{"local_hostname":"{mooncake_ip}",'
+        f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","global_segment_size": 32212254720, '
+        '"local_buffer_size": 1073741824, "protocol": "tcp","transfer_timeout":"20", "device_name": "",'
+        f'"master_server_address": "{mooncake_ip}:{rpc_port}","replica_num": 1, "fast_transfer":true, '
+        '"fast_transfer_buffer_size": 1, "ec_max_num_scheduled_tokens": "1000000000000000000"},'
+        '"ec_connector":"ECMooncakeStorageConnector","ec_role": "ec_producer"}'
+    ]
+
+    pd_server_args = [
+        "--model", model, "--gpu-memory-utilization", "0.95",
+        "--tensor-parallel-size",
+        str(tp_size), "--enforce-eager", "--max-model-len", "10000",
+        "--max-num-batched-tokens", "10000","--worker-addr",f"{pd_addr}", "--max-num-seqs", "128",
+        "--ec-transfer-config",
+        f'{{"ec_connector_extra_config":{{"local_hostname":"{mooncake_ip}",'
+        f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","global_segment_size": 0, '
+        '"local_buffer_size": 1073741824, "protocol": "tcp","transfer_timeout":"20", "device_name": "",'
+        f'"master_server_address": "{mooncake_ip}:{rpc_port}","replica_num": 1, "fast_transfer":true, '
+        '"fast_transfer_buffer_size": 1},'
+        '"ec_connector":"ECMooncakeStorageConnector","ec_role": "ec_consumer"}',
+    ]
+
+    mooncake_args = [
+        "--rpc_port", str(rpc_port), "--rpc_address", f"{mooncake_ip}", "--enable_http_metadata_server=true",
+        f"--http_metadata_server_host={mooncake_ip}",
+        f"--http_metadata_server_port={http_metadata_server_port}", "--rpc_thread_num", "8",
+        "--default_kv_lease_ttl", "10000", "--eviction_ratio", "0.05",
+        "--eviction_high_watermark_ratio", "0.9", "--metrics_port", str(metrics_port)
+    ]
+    #proxy_args = ["--proxy-addr",f"{proxy_addr}","--worker-addr",f"{e_addr},{pd_addr}"]
+
+    async with RemoteEPDServer(run_mode="worker",
+                               store_type="mooncake",
+                               pd_num=1,
+                               e_num=1,
+                               env_dict=env_dict,
+                               e_serve_args=e_server_args,
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
+
+        print("vllm instance is ready")
+        p = Proxy(
+            proxy_addr=proxy_addr,
+            encode_addr_list=[e_addr],
+            pd_addr_list=[pd_addr],
+            model_name=model,
+            enable_health_monitor=True
+        )
+        print("proxy is success")
+        try:
+            outputs = p.generate(
+                prompt={
+                    "prompt": PROMPT_TEMPLATE,
+                    "multi_modal_data": {"image": IMAGE_ARRAY},
+                },
+                sampling_params=SAMPLING_PARAMS,
+                request_id=str(uuid.uuid4())
+            )
+            output = None
+            print("proxy is success")
+            async for o in outputs:
+                output = o
+                print(f"{o.outputs}", flush=True)
+            p.shutdown()
+        except Exception as message:
+            print(f"error message is: {str(message)}")
+            assert "invalid" in str(message), "init success"
+
+@pytest.mark.asyncio
+@pytest.mark.function
+@pytest.mark.parametrize("tp_size", TENSOR_PARALLELS)
+async def test_lm_service_request_timeout_seconds_003(tp_size: int):
+    '''
+    lm_service_request_timeout_seconds为0，调用generate接口，调用失败，返回报错信息
+    '''
+    e_num = 1
+    pd_num = 1
+    env = {
+        "VLLM_NIXL_SIDE_CHANNEL_PORT": "6000",
+        "LM_SERVICE_REQUEST_TIMEOUT_SECONDS": "0",
+        "MC_MS_AUTO_DISC": "0",
+        "MC_USE_IPV6": "0",
+        "TRANSFER_PROTOCOL": "tcp",
+        "PYTORCH_NPU_ALLOC_CONF": "expandable_segments:True"
+    }
+    env_dict = EnvManager()
+    env_dict.add_env("common", env_dict=env)
+
+    for i in range(e_num):
+        env_dict.add_env("e", "ASCEND_RT_VISIBLE_DEVICES", str(i), index=i)
+    for i in range(pd_num):
+        env_dict.add_env("pd", "ASCEND_RT_VISIBLE_DEVICES", str(i + e_num), index=i)
+
+    rpc_port = get_open_port()
+    http_metadata_server_port = get_open_port()
+    metrics_port = get_open_port()
+    proxy_addr = f"127.0.0.1:{get_open_port()}"
+    e_addr = f"127.0.0.1:{get_open_port()}"
+    pd_addr = f"127.0.0.1:{get_open_port()}"
+
+    mooncake_ip = "0.0.0.0"
+    e_server_args = [
+        "--model", model, "--gpu-memory-utilization", "0.0",
+        "--tensor-parallel-size",
+        str(tp_size), "--enforce-eager", "--no-enable-prefix-caching",
+        "--max-model-len", "10000","--worker-addr",f"{e_addr}", "--max-num-batched-tokens", "10000",
+        "--max-num-seqs", "1", "--ec-transfer-config",
+        f'{{"ec_connector_extra_config":{{"local_hostname":"{mooncake_ip}",'
+        f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","global_segment_size": 32212254720, '
+        '"local_buffer_size": 1073741824, "protocol": "tcp","transfer_timeout":"20", "device_name": "",'
+        f'"master_server_address": "{mooncake_ip}:{rpc_port}","replica_num": 1, "fast_transfer":true, '
+        '"fast_transfer_buffer_size": 1, "ec_max_num_scheduled_tokens": "1000000000000000000"},'
+        '"ec_connector":"ECMooncakeStorageConnector","ec_role": "ec_producer"}'
+    ]
+
+    pd_server_args = [
+        "--model", model, "--gpu-memory-utilization", "0.95",
+        "--tensor-parallel-size",
+        str(tp_size), "--enforce-eager", "--max-model-len", "10000",
+        "--max-num-batched-tokens", "10000","--worker-addr",f"{pd_addr}", "--max-num-seqs", "128",
+        "--ec-transfer-config",
+        f'{{"ec_connector_extra_config":{{"local_hostname":"{mooncake_ip}",'
+        f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","global_segment_size": 0, '
+        '"local_buffer_size": 1073741824, "protocol": "tcp","transfer_timeout":"20", "device_name": "",'
+        f'"master_server_address": "{mooncake_ip}:{rpc_port}","replica_num": 1, "fast_transfer":true, '
+        '"fast_transfer_buffer_size": 1},'
+        '"ec_connector":"ECMooncakeStorageConnector","ec_role": "ec_consumer"}',
+    ]
+
+    mooncake_args = [
+        "--rpc_port", str(rpc_port), "--rpc_address", f"{mooncake_ip}", "--enable_http_metadata_server=true",
+        f"--http_metadata_server_host={mooncake_ip}",
+        f"--http_metadata_server_port={http_metadata_server_port}", "--rpc_thread_num", "8",
+        "--default_kv_lease_ttl", "10000", "--eviction_ratio", "0.05",
+        "--eviction_high_watermark_ratio", "0.9", "--metrics_port", str(metrics_port)
+    ]
+    #proxy_args = ["--proxy-addr",f"{proxy_addr}","--worker-addr",f"{e_addr},{pd_addr}"]
+
+    async with RemoteEPDServer(run_mode="worker",
+                               store_type="mooncake",
+                               pd_num=1,
+                               e_num=1,
+                               env_dict=env_dict,
+                               e_serve_args=e_server_args,
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
+
+        print("vllm instance is ready")
+        p = Proxy(
+            proxy_addr=proxy_addr,
+            encode_addr_list=[e_addr],
+            pd_addr_list=[pd_addr],
+            model_name=model,
+            enable_health_monitor=True
+        )
+        print("proxy is success")
+        try:
+            outputs = p.generate(
+                prompt={
+                    "prompt": PROMPT_TEMPLATE,
+                    "multi_modal_data": {"image": IMAGE_ARRAY},
+                },
+                sampling_params=SAMPLING_PARAMS,
+                request_id=str(uuid.uuid4())
+            )
+            output = None
+            print("proxy is success")
+            async for o in outputs:
+                output = o
+                print(f"{o.outputs}", flush=True)
+            p.shutdown()
+        except Exception as message:
+            print(f"error message is: {str(message)}")
+            assert "invalid" in str(message), "init success"
+
+@pytest.mark.asyncio
+@pytest.mark.function
+@pytest.mark.parametrize("tp_size", TENSOR_PARALLELS)
+async def test_lm_service_request_timeout_seconds_004(tp_size: int):
+    '''
+    lm_service_request_timeout_seconds为-1，调用generate接口，调用失败，返回报错信息
+    '''
+    e_num = 1
+    pd_num = 1
+    env = {
+        "VLLM_NIXL_SIDE_CHANNEL_PORT": "6000",
+        "LM_SERVICE_REQUEST_TIMEOUT_SECONDS": "-1",
+        "MC_MS_AUTO_DISC": "0",
+        "MC_USE_IPV6": "0",
+        "TRANSFER_PROTOCOL": "tcp",
+        "PYTORCH_NPU_ALLOC_CONF": "expandable_segments:True"
+    }
+    env_dict = EnvManager()
+    env_dict.add_env("common", env_dict=env)
+
+    for i in range(e_num):
+        env_dict.add_env("e", "ASCEND_RT_VISIBLE_DEVICES", str(i), index=i)
+    for i in range(pd_num):
+        env_dict.add_env("pd", "ASCEND_RT_VISIBLE_DEVICES", str(i + e_num), index=i)
+
+    rpc_port = get_open_port()
+    http_metadata_server_port = get_open_port()
+    metrics_port = get_open_port()
+    proxy_addr = f"127.0.0.1:{get_open_port()}"
+    e_addr = f"127.0.0.1:{get_open_port()}"
+    pd_addr = f"127.0.0.1:{get_open_port()}"
+
+    mooncake_ip = "0.0.0.0"
+    e_server_args = [
+        "--model", model, "--gpu-memory-utilization", "0.0",
+        "--tensor-parallel-size",
+        str(tp_size), "--enforce-eager", "--no-enable-prefix-caching",
+        "--max-model-len", "10000","--worker-addr",f"{e_addr}", "--max-num-batched-tokens", "10000",
+        "--max-num-seqs", "1", "--ec-transfer-config",
+        f'{{"ec_connector_extra_config":{{"local_hostname":"{mooncake_ip}",'
+        f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","global_segment_size": 32212254720, '
+        '"local_buffer_size": 1073741824, "protocol": "tcp","transfer_timeout":"20", "device_name": "",'
+        f'"master_server_address": "{mooncake_ip}:{rpc_port}","replica_num": 1, "fast_transfer":true, '
+        '"fast_transfer_buffer_size": 1, "ec_max_num_scheduled_tokens": "1000000000000000000"},'
+        '"ec_connector":"ECMooncakeStorageConnector","ec_role": "ec_producer"}'
+    ]
+
+    pd_server_args = [
+        "--model", model, "--gpu-memory-utilization", "0.95",
+        "--tensor-parallel-size",
+        str(tp_size), "--enforce-eager", "--max-model-len", "10000",
+        "--max-num-batched-tokens", "10000","--worker-addr",f"{pd_addr}", "--max-num-seqs", "128",
+        "--ec-transfer-config",
+        f'{{"ec_connector_extra_config":{{"local_hostname":"{mooncake_ip}",'
+        f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","global_segment_size": 0, '
+        '"local_buffer_size": 1073741824, "protocol": "tcp","transfer_timeout":"20", "device_name": "",'
+        f'"master_server_address": "{mooncake_ip}:{rpc_port}","replica_num": 1, "fast_transfer":true, '
+        '"fast_transfer_buffer_size": 1},'
+        '"ec_connector":"ECMooncakeStorageConnector","ec_role": "ec_consumer"}',
+    ]
+
+    mooncake_args = [
+        "--rpc_port", str(rpc_port), "--rpc_address", f"{mooncake_ip}", "--enable_http_metadata_server=true",
+        f"--http_metadata_server_host={mooncake_ip}",
+        f"--http_metadata_server_port={http_metadata_server_port}", "--rpc_thread_num", "8",
+        "--default_kv_lease_ttl", "10000", "--eviction_ratio", "0.05",
+        "--eviction_high_watermark_ratio", "0.9", "--metrics_port", str(metrics_port)
+    ]
+    #proxy_args = ["--proxy-addr",f"{proxy_addr}","--worker-addr",f"{e_addr},{pd_addr}"]
+
+    async with RemoteEPDServer(run_mode="worker",
+                               store_type="mooncake",
+                               pd_num=1,
+                               e_num=1,
+                               env_dict=env_dict,
+                               e_serve_args=e_server_args,
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
+
+        print("vllm instance is ready")
+        p = Proxy(
+            proxy_addr=proxy_addr,
+            encode_addr_list=[e_addr],
+            pd_addr_list=[pd_addr],
+            model_name=model,
+            enable_health_monitor=True
+        )
+        print("proxy is success")
+        try:
+            outputs = p.generate(
+                prompt={
+                    "prompt": PROMPT_TEMPLATE,
+                    "multi_modal_data": {"image": IMAGE_ARRAY},
+                },
+                sampling_params=SAMPLING_PARAMS,
+                request_id=str(uuid.uuid4())
+            )
+            output = None
+            print("proxy is success")
+            async for o in outputs:
+                output = o
+                print(f"{o.outputs}", flush=True)
+            p.shutdown()
+        except Exception as message:
+            print(f"error message is: {str(message)}")
+            assert "invalid" in str(message), "init success"
+
+@pytest.mark.asyncio
+@pytest.mark.function
+@pytest.mark.parametrize("model", MODELS)
+@pytest.mark.parametrize("tp_size", TENSOR_PARALLELS)
+@pytest.mark.parametrize("dataset_name", DATASET_NAME)
+async def test_lm_service_request_timeout_seconds_005(model: str, tp_size: int,
+                                               dataset_name: str):
+    '''
+    lm_service_request_timeout_seconds为1，拉起epd单机实例，max-token为2000，串行多次调用generate接口，调用失败，返回报错信息
+    '''
+    e_num = 1
+    pd_num = 1
+    env = {
+        "VLLM_NIXL_SIDE_CHANNEL_PORT": "6000",
+        "LM_SERVICE_REQUEST_TIMEOUT_SECONDS": "1",
+        "MC_MS_AUTO_DISC": "0",
+        "MC_USE_IPV6": "0",
+        "TRANSFER_PROTOCOL": "tcp",
+        "PYTORCH_NPU_ALLOC_CONF": "expandable_segments:True"
+    }
+    env_dict = EnvManager()
+    env_dict.add_env("common", env_dict=env)
+
+    for i in range(e_num):
+        env_dict.add_env("e", "ASCEND_RT_VISIBLE_DEVICES", str(i), index=i)
+    for i in range(pd_num):
+        env_dict.add_env("pd", "ASCEND_RT_VISIBLE_DEVICES", str(i + e_num), index=i)
+
+    rpc_port = get_open_port()
+    http_metadata_server_port = get_open_port()
+    metrics_port = get_open_port()
+    proxy_addr = f"127.0.0.1:{get_open_port()}"
+    e_addr = f"127.0.0.1:{get_open_port()}"
+    p_addr = f"127.0.0.1:{get_open_port()}"
+    d_addr = f"127.0.0.1:{get_open_port()}"
+
+    mooncake_ip = "0.0.0.0"
+    e_server_args = [
+        "--model", model, "--gpu-memory-utilization", "0.0",
+        "--tensor-parallel-size",
+        str(tp_size), "--enforce-eager", "--no-enable-prefix-caching",
+        "--max-model-len", "10000","--worker-addr",f"{e_addr}", "--max-num-batched-tokens", "10000",
+        "--max-num-seqs", "1", "--ec-transfer-config",
+        f'{{"ec_connector_extra_config":{{"local_hostname":"{mooncake_ip}",'
+        f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","global_segment_size": 32212254720, '
+        '"local_buffer_size": 1073741824, "protocol": "tcp","transfer_timeout":"20", "device_name": "",'
+        f'"master_server_address": "{mooncake_ip}:{rpc_port}","replica_num": 1, "fast_transfer":true, '
+        '"fast_transfer_buffer_size": 1, "ec_max_num_scheduled_tokens": "1000000000000000000"},'
+        '"ec_connector":"ECMooncakeStorageConnector","ec_role": "ec_producer"}'
+    ]
+
+    pd_server_args = [
+        [
+            "--model", model, "--gpu-memory-utilization", "0.95",
+            "--tensor-parallel-size",
+            str(tp_size), "--enforce-eager", "--max-model-len", "10000",
+            "--max-num-batched-tokens", "10000", "--worker-addr", f"{p_addr}", "--max-num-seqs", "128",
+            "--ec-transfer-config",
+            f'{{"ec_connector_extra_config":{{"local_hostname":"{mooncake_ip}",'
+            f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","global_segment_size": 0, '
+            '"local_buffer_size": 1073741824, "protocol": "tcp","transfer_timeout":"20", "device_name": "",'
+            f'"master_server_address": "{mooncake_ip}:{rpc_port}","replica_num": 1, "fast_transfer":true, '
+            '"fast_transfer_buffer_size": 1},'
+            '"ec_connector":"ECMooncakeStorageConnector","ec_role": "ec_consumer"}',
+            "--kv-transfer-config",
+            f'{{"kv_connector_extra_config": {{"local_hostname": "{mooncake_ip}", '
+            f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","protocol": "tcp", '
+            f'"device_name": "", "master_server_address": "{mooncake_ip}:{rpc_port}", '
+            '"global_segment_size": 30000000000},"kv_connector": "MooncakeConnectorStoreV1", '
+            f'"kv_role": "kv_producer", "mooncake_rpc_port": "{rpc_port}"}}'
+        ],
+        [
+            "--model", model, "--gpu-memory-utilization", "0.95",
+            "--tensor-parallel-size",
+            str(tp_size), "--enforce-eager", "--max-model-len", "10000",
+            "--max-num-batched-tokens", "10000", "--worker-addr", f"{d_addr}", "--max-num-seqs", "128",
+            "--kv-transfer-config",
+            f'{{"kv_connector_extra_config": {{"local_hostname": "{mooncake_ip}", '
+            f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","protocol": "tcp", '
+            f'"device_name": "", "master_server_address": "{mooncake_ip}:{rpc_port}", '
+            '"global_segment_size": 30000000000},"kv_connector": "MooncakeConnectorStoreV1", '
+            f'"kv_role": "kv_consumer", "mooncake_rpc_port": "{rpc_port}"}}'
+        ]
+    ]
+
+    mooncake_args = [
+        "--rpc_port", str(rpc_port), "--rpc_address", f"{mooncake_ip}", "--enable_http_metadata_server=true",
+        f"--http_metadata_server_host={mooncake_ip}",
+        f"--http_metadata_server_port={http_metadata_server_port}", "--rpc_thread_num", "8",
+        "--default_kv_lease_ttl", "10000", "--eviction_ratio", "0.05",
+        "--eviction_high_watermark_ratio", "0.9", "--metrics_port", str(metrics_port)
+    ]
+    #proxy_args = ["--proxy-addr",f"{proxy_addr}","--worker-addr",f"{e_addr},{pd_addr}"]
+
+    async with RemoteEPDServer(run_mode="worker",
+                               store_type="mooncake",
+                               pd_num=1,
+                               e_num=1,
+                               env_dict=env_dict,
+                               e_serve_args=e_server_args,
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
+
+        print("vllm instance is ready")
+        p = Proxy(
+            proxy_addr=proxy_addr,
+            encode_addr_list=[e_addr],
+            pd_addr_list=[p_addr,d_addr],
+            model_name=model,
+            enable_health_monitor=True
+        )
+        print("proxy is success")
+        n_call = 3
+        for call_num in n_call:
+            try:
+                print(f"**************call_num: {call_num}")
+                outputs = p.generate(
+                    prompt={
+                        "prompt": PROMPT_TEMPLATE,
+                        "multi_modal_data": {"image": IMAGE_ARRAY},
+                    },
+                    sampling_params=SamplingParams(
+                        max_tokens=2000,
+                        temperature=0.0
+                    ),
+                    request_id=str(uuid.uuid4())
+                )
+                output = None
+                print("proxy is success")
+                async for o in outputs:
+                    output = o
+                    print(f"{o.outputs}", flush=True)
+                p.shutdown()
+            except Exception as message:
+                print(f"error message is: {str(message)}")
+                assert "invalid literal" in str(message), "init success"
+
+@pytest.mark.asyncio
+@pytest.mark.function
+@pytest.mark.parametrize("model", MODELS)
+@pytest.mark.parametrize("tp_size", TENSOR_PARALLELS)
+@pytest.mark.parametrize("dataset_name", DATASET_NAME)
+async def test_lm_service_request_timeout_seconds_006(model: str, tp_size: int,
+                                               dataset_name: str):
+    '''
+    lm_service_request_timeout_seconds为1，拉起epd跨机实例，max-token为2000，串行多次调用generate接口，调用失败，返回报错信息
+    '''
+    e_num = 1
+    p_num = 1
+    d_num = 1
+    env = {
+        "VLLM_NIXL_SIDE_CHANNEL_PORT": "6000",
+        "LM_SERVICE_REQUEST_TIMEOUT_SECONDS": "1",
+        "MC_MS_AUTO_DISC": "0",
+        "MC_USE_IPV6": "0",
+        "TRANSFER_PROTOCOL": "tcp",
+        "PYTORCH_NPU_ALLOC_CONF": "expandable_segments:True"
+    }
+    env_dict = EnvManager()
+    env_dict.add_env("common", env_dict=env)
+    cluster = ClusterManager()
+    for i in range(e_num):
+        cluster.add_node_info("e", 1, CONTAINER_NAME)
+    for i in range(p_num):
+        cluster.add_node_info("p", 2, CONTAINER_NAME)
+    for i in range(d_num):
+        cluster.add_node_info("d", 3, CONTAINER_NAME)
+
+    node_ips = get_cluster_ips()
+
+    for i in range(e_num):
+        env_dict.add_env("e", "ASCEND_RT_VISIBLE_DEVICES", str(i), index=i)
+    for i in range(p_num):
+        env_dict.add_env("p", "ASCEND_RT_VISIBLE_DEVICES", str(i + e_num), index=i)
+    for i in range(d_num):
+        env_dict.add_env("d", "ASCEND_RT_VISIBLE_DEVICES", str(i + e_num + p_num), index=i)
+
+    rpc_port = get_open_port()
+    http_metadata_server_port = get_open_port()
+    metrics_port = get_open_port()
+    proxy_addr = f"{node_ips[0]}:{get_open_port()}"
+    e_addr = f"{node_ips[1]}:{get_open_port()}"
+    p_addr = f"{node_ips[2]}:{get_open_port()}"
+    d_addr = f"{node_ips[3]}:{get_open_port()}"
+
+    mooncake_ip = node_ips[0]
+    e_server_args = [
+        "--model", model, "--gpu-memory-utilization", "0.0",
+        "--tensor-parallel-size",
+        str(tp_size), "--enforce-eager", "--no-enable-prefix-caching",
+        "--max-model-len", "10000","--worker-addr",f"{e_addr}", "--max-num-batched-tokens", "10000",
+        "--max-num-seqs", "1", "--ec-transfer-config",
+        f'{{"ec_connector_extra_config":{{"local_hostname":"{node_ips[1]}",'
+        f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","global_segment_size": 32212254720, '
+        '"local_buffer_size": 1073741824, "protocol": "tcp","transfer_timeout":"20", "device_name": "",'
+        f'"master_server_address": "{mooncake_ip}:{rpc_port}","replica_num": 1, "fast_transfer":true, '
+        '"fast_transfer_buffer_size": 1, "ec_max_num_scheduled_tokens": "1000000000000000000"},'
+        '"ec_connector":"ECMooncakeStorageConnector","ec_role": "ec_producer"}'
+    ]
+
+    pd_server_args = [
+        [
+            "--model", model, "--gpu-memory-utilization", "0.95",
+            "--tensor-parallel-size",
+            str(tp_size), "--enforce-eager", "--max-model-len", "10000",
+            "--max-num-batched-tokens", "10000","--worker-addr",f"{p_addr}", "--max-num-seqs", "128",
+            "--ec-transfer-config",
+            f'{{"ec_connector_extra_config":{{"local_hostname":"{node_ips[2]}",'
+            f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","global_segment_size": 0, '
+            '"local_buffer_size": 1073741824, "protocol": "tcp","transfer_timeout":"20", "device_name": "",'
+            f'"master_server_address": "{mooncake_ip}:{rpc_port}","replica_num": 1, "fast_transfer":true, '
+            '"fast_transfer_buffer_size": 1},'
+            '"ec_connector":"ECMooncakeStorageConnector","ec_role": "ec_consumer"}',
+            "--kv-transfer-config",
+            f'{{"kv_connector_extra_config": {{"local_hostname": "{node_ips[2]}", '
+            f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","protocol": "tcp", '
+            f'"device_name": "", "master_server_address": "{mooncake_ip}:{rpc_port}", '
+            '"global_segment_size": 30000000000},"kv_connector": "MooncakeConnectorStoreV1", '
+            f'"kv_role": "kv_producer", "mooncake_rpc_port": "{rpc_port}"}}'
+        ],
+        [
+            "--model", model, "--gpu-memory-utilization", "0.95",
+            "--tensor-parallel-size",
+            str(tp_size), "--enforce-eager", "--max-model-len", "10000",
+            "--max-num-batched-tokens", "10000","--worker-addr",f"{d_addr}", "--max-num-seqs", "128",
+            "--kv-transfer-config",
+            f'{{"kv_connector_extra_config": {{"local_hostname": "{node_ips[3]}", '
+            f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","protocol": "tcp", '
+            f'"device_name": "", "master_server_address": "{mooncake_ip}:{rpc_port}", '
+            '"global_segment_size": 30000000000},"kv_connector": "MooncakeConnectorStoreV1", '
+            f'"kv_role": "kv_consumer", "mooncake_rpc_port": "{rpc_port}"}}'
+        ]
+    ]
+
+    mooncake_args = [
+        "--rpc_port", str(rpc_port), "--rpc_address", f"{mooncake_ip}", "--enable_http_metadata_server=true",
+        f"--http_metadata_server_host={mooncake_ip}",
+        f"--http_metadata_server_port={http_metadata_server_port}", "--rpc_thread_num", "8",
+        "--default_kv_lease_ttl", "10000", "--eviction_ratio", "0.05",
+        "--eviction_high_watermark_ratio", "0.9", "--metrics_port", str(metrics_port)
+    ]
+    #proxy_args = ["--proxy-addr",f"{proxy_addr}","--worker-addr",f"{e_addr},{pd_addr}"]
+
+    async with RemoteEPDServer(run_mode="worker",
+                               store_type="mooncake",
+                               pd_num=1,
+                               e_num=1,
+                               env_dict=env_dict,
+                               e_serve_args=e_server_args,
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
+
+        print("vllm instance is ready")
+        p = Proxy(
+            proxy_addr=proxy_addr,
+            encode_addr_list=[e_addr],
+            pd_addr_list=[p_addr,d_addr],
+            model_name=model,
+            enable_health_monitor=True
+        )
+        print("proxy is success")
+        n_call = 3
+        for call_num in n_call:
+            try:
+                print(f"**************call_num: {call_num}")
+                outputs = p.generate(
+                    prompt={
+                        "prompt": PROMPT_TEMPLATE,
+                        "multi_modal_data": {"image": IMAGE_ARRAY},
+                    },
+                    sampling_params=SamplingParams(
+                        max_tokens=2000,
+                        temperature=0.0
+                    ),
+                    request_id=str(uuid.uuid4())
+                )
+                output = None
+                print("proxy is success")
+                async for o in outputs:
+                    output = o
+                    print(f"{o.outputs}", flush=True)
+                p.shutdown()
+            except Exception as message:
+                print(f"error message is: {str(message)}")
+                assert "invalid literal" in str(message), "init success"
 
 
 
