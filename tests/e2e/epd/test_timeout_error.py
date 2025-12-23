@@ -5,6 +5,7 @@ import uuid
 import numpy as np
 
 import pytest
+import pytest_asyncio
 import socket
 
 from tests.e2e.conftest import RemoteEPDServer
