@@ -63,7 +63,7 @@ async def setup_teardown():
     ]
     
     async with RemoteEPDServer(
-            start_mode="api",
+            run_mode="worker",
             pd_num=1,
             e_num=1,
             e_serve_args=e_server_args,
