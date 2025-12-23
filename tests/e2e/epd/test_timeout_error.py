@@ -137,7 +137,7 @@ async def test_lm_service_request_timeout_seconds_001(tp_size: int):
             enable_health_monitor=True
         )
         print("proxy is success")
-        outputs = p.generate(
+        p.generate(
             prompt={
                 "prompt": PROMPT_TEMPLATE,
                 "multi_modal_data": {"image": IMAGE_ARRAY},
