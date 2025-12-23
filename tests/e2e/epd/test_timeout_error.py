@@ -118,7 +118,6 @@ async def test_lm_service_request_timeout_seconds_001(tp_size: int):
         "--default_kv_lease_ttl", "10000", "--eviction_ratio", "0.05",
         "--eviction_high_watermark_ratio", "0.9", "--metrics_port", str(metrics_port)
     ]
-    #proxy_args = ["--proxy-addr",f"{proxy_addr}","--worker-addr",f"{e_addr},{pd_addr}"]
 
     async with RemoteEPDServer(run_mode="worker",
                                store_type="mooncake",
