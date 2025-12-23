@@ -10,6 +10,9 @@ from tools.aisbench import run_aisbench_cases
 from tests.e2e.nightly.multi_node.config.utils import get_cluster_ips
 from tests.e2e.nightly.multi_node.config.multi_node_epd_config import ClusterManager, EnvManager
 from vllm.utils import get_open_port
+from vllm.multimodal.image import convert_image_mode
+from vllm import SamplingParams
+from lm_service.apis.vllm.proxy import Proxy
 
 model_path = load_config().get("model_path")
 MODELS = [os.path.join(model_path, "Qwen2.5-VL-7B-Instruct")]
