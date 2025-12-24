@@ -184,7 +184,7 @@ async def test_lm_service_request_timeout_seconds_002(tp_size: int):
         "--model", model, "--gpu-memory-utilization", "0.0",
         "--tensor-parallel-size",
         str(tp_size), "--enforce-eager", "--no-enable-prefix-caching",
-        "--max-model-len", "10000","--worker-addr",f"{e_addr}", "--max-num-batched-tokens", "10000",
+        "--max-model-len", "10000", "--worker-addr", f"{e_addr}", "--max-num-batched-tokens", "10000",
         "--max-num-seqs", "1", "--ec-transfer-config",
         f'{{"ec_connector_extra_config":{{"local_hostname":"{mooncake_ip}",'
         f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","global_segment_size": 32212254720, '
@@ -198,7 +198,7 @@ async def test_lm_service_request_timeout_seconds_002(tp_size: int):
         "--model", model, "--gpu-memory-utilization", "0.95",
         "--tensor-parallel-size",
         str(tp_size), "--enforce-eager", "--max-model-len", "10000",
-        "--max-num-batched-tokens", "10000","--worker-addr",f"{pd_addr}", "--max-num-seqs", "128",
+        "--max-num-batched-tokens", "10000", "--worker-addr", f"{pd_addr}", "--max-num-seqs", "128",
         "--ec-transfer-config",
         f'{{"ec_connector_extra_config":{{"local_hostname":"{mooncake_ip}",'
         f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","global_segment_size": 0, '
@@ -215,7 +215,6 @@ async def test_lm_service_request_timeout_seconds_002(tp_size: int):
         "--default_kv_lease_ttl", "10000", "--eviction_ratio", "0.05",
         "--eviction_high_watermark_ratio", "0.9", "--metrics_port", str(metrics_port)
     ]
-    #proxy_args = ["--proxy-addr",f"{proxy_addr}","--worker-addr",f"{e_addr},{pd_addr}"]
 
     async with RemoteEPDServer(run_mode="worker",
                                store_type="mooncake",
@@ -235,24 +234,15 @@ async def test_lm_service_request_timeout_seconds_002(tp_size: int):
             enable_health_monitor=True
         )
         print("proxy is success")
-        try:
-            outputs = p.generate(
-                prompt={
-                    "prompt": PROMPT_TEMPLATE,
-                    "multi_modal_data": {"image": IMAGE_ARRAY},
-                },
-                sampling_params=SAMPLING_PARAMS,
-                request_id=str(uuid.uuid4())
-            )
-            output = None
-            print("proxy is success")
-            async for o in outputs:
-                output = o
-                print(f"{o.outputs}", flush=True)
-            p.shutdown()
-        except Exception as message:
-            print(f"error message is: {str(message)}")
-            assert "invalid" in str(message), "init success"
+        p.generate(
+            prompt={
+                "prompt": PROMPT_TEMPLATE,
+                "multi_modal_data": {"image": IMAGE_ARRAY},
+            },
+            sampling_params=SAMPLING_PARAMS,
+            request_id=str(uuid.uuid4())
+        )
+        assert server.check_log("invalid literal", 120), "init success"
 
 @pytest.mark.asyncio
 @pytest.mark.function
@@ -291,7 +281,7 @@ async def test_lm_service_request_timeout_seconds_003(tp_size: int):
         "--model", model, "--gpu-memory-utilization", "0.0",
         "--tensor-parallel-size",
         str(tp_size), "--enforce-eager", "--no-enable-prefix-caching",
-        "--max-model-len", "10000","--worker-addr",f"{e_addr}", "--max-num-batched-tokens", "10000",
+        "--max-model-len", "10000", "--worker-addr", f"{e_addr}", "--max-num-batched-tokens", "10000",
         "--max-num-seqs", "1", "--ec-transfer-config",
         f'{{"ec_connector_extra_config":{{"local_hostname":"{mooncake_ip}",'
         f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","global_segment_size": 32212254720, '
@@ -305,7 +295,7 @@ async def test_lm_service_request_timeout_seconds_003(tp_size: int):
         "--model", model, "--gpu-memory-utilization", "0.95",
         "--tensor-parallel-size",
         str(tp_size), "--enforce-eager", "--max-model-len", "10000",
-        "--max-num-batched-tokens", "10000","--worker-addr",f"{pd_addr}", "--max-num-seqs", "128",
+        "--max-num-batched-tokens", "10000", "--worker-addr", f"{pd_addr}", "--max-num-seqs", "128",
         "--ec-transfer-config",
         f'{{"ec_connector_extra_config":{{"local_hostname":"{mooncake_ip}",'
         f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","global_segment_size": 0, '
@@ -322,7 +312,6 @@ async def test_lm_service_request_timeout_seconds_003(tp_size: int):
         "--default_kv_lease_ttl", "10000", "--eviction_ratio", "0.05",
         "--eviction_high_watermark_ratio", "0.9", "--metrics_port", str(metrics_port)
     ]
-    #proxy_args = ["--proxy-addr",f"{proxy_addr}","--worker-addr",f"{e_addr},{pd_addr}"]
 
     async with RemoteEPDServer(run_mode="worker",
                                store_type="mooncake",
@@ -342,24 +331,15 @@ async def test_lm_service_request_timeout_seconds_003(tp_size: int):
             enable_health_monitor=True
         )
         print("proxy is success")
-        try:
-            outputs = p.generate(
-                prompt={
-                    "prompt": PROMPT_TEMPLATE,
-                    "multi_modal_data": {"image": IMAGE_ARRAY},
-                },
-                sampling_params=SAMPLING_PARAMS,
-                request_id=str(uuid.uuid4())
-            )
-            output = None
-            print("proxy is success")
-            async for o in outputs:
-                output = o
-                print(f"{o.outputs}", flush=True)
-            p.shutdown()
-        except Exception as message:
-            print(f"error message is: {str(message)}")
-            assert "invalid" in str(message), "init success"
+        p.generate(
+            prompt={
+                "prompt": PROMPT_TEMPLATE,
+                "multi_modal_data": {"image": IMAGE_ARRAY},
+            },
+            sampling_params=SAMPLING_PARAMS,
+            request_id=str(uuid.uuid4())
+        )
+        assert server.check_log("invalid literal", 120), "init success"
 
 @pytest.mark.asyncio
 @pytest.mark.function
@@ -398,7 +378,7 @@ async def test_lm_service_request_timeout_seconds_004(tp_size: int):
         "--model", model, "--gpu-memory-utilization", "0.0",
         "--tensor-parallel-size",
         str(tp_size), "--enforce-eager", "--no-enable-prefix-caching",
-        "--max-model-len", "10000","--worker-addr",f"{e_addr}", "--max-num-batched-tokens", "10000",
+        "--max-model-len", "10000", "--worker-addr", f"{e_addr}", "--max-num-batched-tokens", "10000",
         "--max-num-seqs", "1", "--ec-transfer-config",
         f'{{"ec_connector_extra_config":{{"local_hostname":"{mooncake_ip}",'
         f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","global_segment_size": 32212254720, '
@@ -412,7 +392,7 @@ async def test_lm_service_request_timeout_seconds_004(tp_size: int):
         "--model", model, "--gpu-memory-utilization", "0.95",
         "--tensor-parallel-size",
         str(tp_size), "--enforce-eager", "--max-model-len", "10000",
-        "--max-num-batched-tokens", "10000","--worker-addr",f"{pd_addr}", "--max-num-seqs", "128",
+        "--max-num-batched-tokens", "10000", "--worker-addr", f"{pd_addr}", "--max-num-seqs", "128",
         "--ec-transfer-config",
         f'{{"ec_connector_extra_config":{{"local_hostname":"{mooncake_ip}",'
         f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","global_segment_size": 0, '
@@ -429,7 +409,6 @@ async def test_lm_service_request_timeout_seconds_004(tp_size: int):
         "--default_kv_lease_ttl", "10000", "--eviction_ratio", "0.05",
         "--eviction_high_watermark_ratio", "0.9", "--metrics_port", str(metrics_port)
     ]
-    #proxy_args = ["--proxy-addr",f"{proxy_addr}","--worker-addr",f"{e_addr},{pd_addr}"]
 
     async with RemoteEPDServer(run_mode="worker",
                                store_type="mooncake",
@@ -449,24 +428,15 @@ async def test_lm_service_request_timeout_seconds_004(tp_size: int):
             enable_health_monitor=True
         )
         print("proxy is success")
-        try:
-            outputs = p.generate(
-                prompt={
-                    "prompt": PROMPT_TEMPLATE,
-                    "multi_modal_data": {"image": IMAGE_ARRAY},
-                },
-                sampling_params=SAMPLING_PARAMS,
-                request_id=str(uuid.uuid4())
-            )
-            output = None
-            print("proxy is success")
-            async for o in outputs:
-                output = o
-                print(f"{o.outputs}", flush=True)
-            p.shutdown()
-        except Exception as message:
-            print(f"error message is: {str(message)}")
-            assert "invalid" in str(message), "init success"
+        p.generate(
+            prompt={
+                "prompt": PROMPT_TEMPLATE,
+                "multi_modal_data": {"image": IMAGE_ARRAY},
+            },
+            sampling_params=SAMPLING_PARAMS,
+            request_id=str(uuid.uuid4())
+        )
+        assert server.check_log("invalid literal", 120), "init success"
 
 @pytest.mark.asyncio
 @pytest.mark.function
