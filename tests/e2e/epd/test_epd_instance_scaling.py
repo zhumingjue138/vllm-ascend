@@ -480,6 +480,7 @@ async def test_redis_proxy_1e1p1d_cross_tcp_mooncake_ipv4_001(model: str, tp_siz
                                env_dict=env_dict,
                                e_serve_args=e_server_args,
                                pd_serve_args=pd_server_args,
+                               node_info=cluster,
                                proxy_args=proxy_args,
                                mooncake_args=mooncake_args) as server:
         # aisbench test
