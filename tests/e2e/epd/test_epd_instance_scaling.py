@@ -226,7 +226,7 @@ async def test_redis_proxy_1e1p1d_tcp_mooncake_ipv6_001(model: str, tp_size: int
         "--model", model, "--gpu-memory-utilization", "0.0",
         "--tensor-parallel-size",
         str(tp_size), "--enforce-eager", "--no-enable-prefix-caching",
-        "--max-model-len", "10000", "--max-num-batched-tokens", "10000",
+        "--max-model-len", "20000", "--max-num-batched-tokens", "10000",
         "--max-num-seqs", "1", "--ec-transfer-config",
         f'{{"ec_connector_extra_config":{{"local_hostname":"{mooncake_ip}",'
         f'"metadata_server": "http://[{mooncake_ip}]:{http_metadata_server_port}/metadata","global_segment_size": 32212254720, '
@@ -243,7 +243,7 @@ async def test_redis_proxy_1e1p1d_tcp_mooncake_ipv6_001(model: str, tp_size: int
         [
             "--model", model, "--gpu-memory-utilization", "0.95",
             "--tensor-parallel-size",
-            str(tp_size), "--enforce-eager", "--max-model-len", "10000",
+            str(tp_size), "--enforce-eager", "--max-model-len", "20000",
             "--max-num-batched-tokens", "10000", "--max-num-seqs", "128",
             "--ec-transfer-config",
             f'{{"ec_connector_extra_config":{{"local_hostname":"{mooncake_ip}",'
@@ -265,7 +265,7 @@ async def test_redis_proxy_1e1p1d_tcp_mooncake_ipv6_001(model: str, tp_size: int
         [
             "--model", model, "--gpu-memory-utilization", "0.95",
             "--tensor-parallel-size",
-            str(tp_size), "--enforce-eager", "--max-model-len", "10000",
+            str(tp_size), "--enforce-eager", "--max-model-len", "20000",
             "--max-num-batched-tokens", "10000", "--max-num-seqs", "128",
             "--kv-transfer-config",
             f'{{"kv_connector_extra_config": {{"local_hostname": "{mooncake_ip}", '
@@ -386,7 +386,7 @@ async def test_redis_proxy_1e1p1d_cross_tcp_mooncake_ipv4_001(model: str, tp_siz
         "--model", model, "--gpu-memory-utilization", "0.0",
         "--tensor-parallel-size",
         str(tp_size), "--enforce-eager", "--no-enable-prefix-caching",
-        "--max-model-len", "10000", "--max-num-batched-tokens", "10000",
+        "--max-model-len", "20000", "--max-num-batched-tokens", "10000",
         "--max-num-seqs", "1", "--ec-transfer-config",
         f'{{"ec_connector_extra_config":{{"local_hostname":"{node_ips[1]}",'
         f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","global_segment_size": 32212254720, '
@@ -403,7 +403,7 @@ async def test_redis_proxy_1e1p1d_cross_tcp_mooncake_ipv4_001(model: str, tp_siz
         [
             "--model", model, "--gpu-memory-utilization", "0.95",
             "--tensor-parallel-size",
-            str(tp_size), "--enforce-eager", "--max-model-len", "10000",
+            str(tp_size), "--enforce-eager", "--max-model-len", "20000",
             "--max-num-batched-tokens", "10000", "--max-num-seqs", "128",
             "--ec-transfer-config",
             f'{{"ec_connector_extra_config":{{"local_hostname":"{node_ips[1]}",'
@@ -425,7 +425,7 @@ async def test_redis_proxy_1e1p1d_cross_tcp_mooncake_ipv4_001(model: str, tp_siz
         [
             "--model", model, "--gpu-memory-utilization", "0.95",
             "--tensor-parallel-size",
-            str(tp_size), "--enforce-eager", "--max-model-len", "10000",
+            str(tp_size), "--enforce-eager", "--max-model-len", "20000",
             "--max-num-batched-tokens", "10000", "--max-num-seqs", "128",
             "--kv-transfer-config",
             f'{{"kv_connector_extra_config": {{"local_hostname": "{node_ips[1]}", '
