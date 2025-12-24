@@ -201,7 +201,7 @@ async def test_redis_proxy_1e1p1d_tcp_mooncake_ipv6_001(model: str, tp_size: int
     env = {
         "LM_SERVICE_REQUEST_TIMEOUT_SECONDS": "300",
         "MC_MS_AUTO_DISC": "0",
-        "MC_USE_IPV6": "0",
+        "MC_USE_IPV6": "1",
         "TRANSFER_PROTOCOL": "tcp",
         "TIMECOUNT_ENABLED": "1",
         "VLLM_LOG_STATS_INTERVAL": "10",
@@ -283,7 +283,7 @@ async def test_redis_proxy_1e1p1d_tcp_mooncake_ipv6_001(model: str, tp_size: int
             "--rpc_port", str(rpc_port), "--rpc_address", "::", "--enable_http_metadata_server=true",
             "--http_metadata_server_host=::",
             f"--http_metadata_server_port={http_metadata_server_port}", "--rpc_thread_num", "8",
-            "--default_kv_lease_ttl", "10000", "--client_ttl","1","--eviction_ratio", "0.05",
+            "--default_kv_lease_ttl", "10000","--eviction_ratio", "0.05",
             "--eviction_high_watermark_ratio", "0.9", "--metrics_port", str(metrics_port)
     ]
     proxy_args = [
@@ -338,7 +338,7 @@ DATASET_NAME = ["simulate_truth"]
 @pytest.mark.parametrize("tp_size", TENSOR_PARALLELS)
 @pytest.mark.parametrize("dataset_name", DATASET_NAME)
 @pytest.mark.parametrize("request_rate", REQUEST_RATE)
-async def test_redis_proxy_1e1p1d_tcp_mooncake_ipv4_001(model: str, tp_size: int,
+async def test_redis_proxy_1e1p1d_cross_tcp_mooncake_ipv4_001(model: str, tp_size: int,
                                        dataset_name: str, request_rate: float):
     '''
     数据集： simulate_truth
