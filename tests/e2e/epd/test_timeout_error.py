@@ -52,8 +52,9 @@ SAMPLING_PARAMS = SamplingParams(
 
 @pytest.mark.asyncio
 @pytest.mark.function
+@pytest.mark.parametrize("model", MODELS)
 @pytest.mark.parametrize("tp_size", TENSOR_PARALLELS)
-async def test_lm_service_request_timeout_seconds_001(tp_size: int):
+async def test_lm_service_request_timeout_seconds_001(model: str, tp_size: int):
     '''
     lm_service_request_timeout_seconds为空，调用generate接口，调用失败，返回报错信息
     '''
@@ -149,8 +150,9 @@ async def test_lm_service_request_timeout_seconds_001(tp_size: int):
 
 @pytest.mark.asyncio
 @pytest.mark.function
+@pytest.mark.parametrize("model", MODELS)
 @pytest.mark.parametrize("tp_size", TENSOR_PARALLELS)
-async def test_lm_service_request_timeout_seconds_002(tp_size: int):
+async def test_lm_service_request_timeout_seconds_002(model: str, tp_size: int):
     '''
     lm_service_request_timeout_seconds为aaa，调用generate接口，调用失败，返回报错信息
     '''
@@ -246,8 +248,9 @@ async def test_lm_service_request_timeout_seconds_002(tp_size: int):
 
 @pytest.mark.asyncio
 @pytest.mark.function
+@pytest.mark.parametrize("model", MODELS)
 @pytest.mark.parametrize("tp_size", TENSOR_PARALLELS)
-async def test_lm_service_request_timeout_seconds_003(tp_size: int):
+async def test_lm_service_request_timeout_seconds_003(model: str, tp_size: int):
     '''
     lm_service_request_timeout_seconds为0，调用generate接口，调用失败，返回报错信息
     '''
@@ -343,8 +346,9 @@ async def test_lm_service_request_timeout_seconds_003(tp_size: int):
 
 @pytest.mark.asyncio
 @pytest.mark.function
+@pytest.mark.parametrize("model", MODELS)
 @pytest.mark.parametrize("tp_size", TENSOR_PARALLELS)
-async def test_lm_service_request_timeout_seconds_004(tp_size: int):
+async def test_lm_service_request_timeout_seconds_004(model: str, tp_size: int):
     '''
     lm_service_request_timeout_seconds为-1，调用generate接口，调用失败，返回报错信息
     '''
