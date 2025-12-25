@@ -244,7 +244,7 @@ async def test_lm_service_request_timeout_seconds_002(model: str, tp_size: int):
         )
         print("proxy is success")
         try:
-            p.generate(
+            outputs = p.generate(
                 prompt={
                     "prompt": PROMPT_TEMPLATE,
                     "multi_modal_data": {"image": IMAGE_ARRAY},
@@ -350,7 +350,7 @@ async def test_lm_service_request_timeout_seconds_003(model: str, tp_size: int):
         )
         print("proxy is success")
         try:
-            p.generate(
+            outputs = p.generate(
                 prompt={
                     "prompt": PROMPT_TEMPLATE,
                     "multi_modal_data": {"image": IMAGE_ARRAY},
@@ -455,7 +455,7 @@ async def test_lm_service_request_timeout_seconds_004(model: str, tp_size: int):
         )
         print("proxy is success")
         try:
-            p.generate(
+            outputs = p.generate(
             prompt={
                 "prompt": PROMPT_TEMPLATE,
                 "multi_modal_data": {"image": IMAGE_ARRAY},
