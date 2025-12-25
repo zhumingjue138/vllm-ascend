@@ -139,7 +139,7 @@ async def test_lm_service_request_timeout_seconds_001(model: str, tp_size: int):
         )
         print("proxy is success")
         try:
-            p.generate(
+            outputs = p.generate(
                 prompt={
                     "prompt": PROMPT_TEMPLATE,
                     "multi_modal_data": {"image": IMAGE_ARRAY},
@@ -147,6 +147,10 @@ async def test_lm_service_request_timeout_seconds_001(model: str, tp_size: int):
                 sampling_params=SAMPLING_PARAMS,
                 request_id=str(uuid.uuid4())
             )
+            output = None
+            async for o in outputs:
+                output = o
+                print(f"{o.outputs}", flush=True)
             p.shutdown()
         except Exception as e:
             assert server.check_log("invalid literal", 120), "init success"
