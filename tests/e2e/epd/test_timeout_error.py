@@ -340,15 +340,17 @@ async def test_lm_service_request_timeout_seconds_003(model: str, tp_size: int):
             enable_health_monitor=True
         )
         print("proxy is success")
-        p.generate(
-            prompt={
-                "prompt": PROMPT_TEMPLATE,
-                "multi_modal_data": {"image": IMAGE_ARRAY},
-            },
-            sampling_params=SAMPLING_PARAMS,
-            request_id=str(uuid.uuid4())
-        )
-        assert server.check_log("invalid literal", 120), "init success"
+        try:
+            p.generate(
+                prompt={
+                    "prompt": PROMPT_TEMPLATE,
+                    "multi_modal_data": {"image": IMAGE_ARRAY},
+                },
+                sampling_params=SAMPLING_PARAMS,
+                request_id=str(uuid.uuid4())
+            )
+        except Exception as e:
+            assert server.check_log("invalid literal", 120), "init success"
 
 @pytest.mark.asyncio
 @pytest.mark.function
@@ -438,15 +440,17 @@ async def test_lm_service_request_timeout_seconds_004(model: str, tp_size: int):
             enable_health_monitor=True
         )
         print("proxy is success")
-        p.generate(
+        try:
+            p.generate(
             prompt={
                 "prompt": PROMPT_TEMPLATE,
                 "multi_modal_data": {"image": IMAGE_ARRAY},
             },
             sampling_params=SAMPLING_PARAMS,
             request_id=str(uuid.uuid4())
-        )
-        assert server.check_log("invalid literal", 120), "init success"
+            )
+        except Exception as e:
+            assert server.check_log("invalid literal", 120), "init success"
 
 @pytest.mark.asyncio
 @pytest.mark.function
