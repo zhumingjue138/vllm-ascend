@@ -252,6 +252,10 @@ async def test_lm_service_request_timeout_seconds_002(model: str, tp_size: int):
                 sampling_params=SAMPLING_PARAMS,
                 request_id=str(uuid.uuid4())
             )
+            output = None
+            async for o in outputs:
+                output = o
+                print(f"{o.outputs}", flush=True)
             p.shutdown()
         except Exception as e:
             assert server.check_log("invalid literal", 120), "init success"
@@ -354,6 +358,10 @@ async def test_lm_service_request_timeout_seconds_003(model: str, tp_size: int):
                 sampling_params=SAMPLING_PARAMS,
                 request_id=str(uuid.uuid4())
             )
+            output = None
+            async for o in outputs:
+                output = o
+                print(f"{o.outputs}", flush=True)
             p.shutdown()
         except Exception as e:
             assert server.check_log("invalid literal", 120), "init success"
@@ -455,6 +463,10 @@ async def test_lm_service_request_timeout_seconds_004(model: str, tp_size: int):
             sampling_params=SAMPLING_PARAMS,
             request_id=str(uuid.uuid4())
             )
+            output = None
+            async for o in outputs:
+                output = o
+                print(f"{o.outputs}", flush=True)
             p.shutdown()
         except Exception as e:
             assert server.check_log("invalid literal", 120), "init success"
