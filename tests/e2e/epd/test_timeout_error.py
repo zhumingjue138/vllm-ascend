@@ -553,18 +553,18 @@ async def test_lm_service_request_timeout_seconds_005(model: str, tp_size: int,
                                mooncake_args=mooncake_args) as server:
 
         print("vllm instance is ready")
-        n_call = 3
-        for call_num in n_call:
-            try:
-                print(f"**************call_num: {call_num}")
-                p = Proxy(
+        p = Proxy(
                     proxy_addr=proxy_addr,
                     encode_addr_list=[e_addr],
-                    pd_addr_list=[p_addr,d_addr],
+                    pd_addr_list=[pd_addr],
                     model_name=model,
                     enable_health_monitor=True
                 )
-                print("proxy is success")
+        print("proxy is success")
+        n_call = 3
+        for call_num in range(n_call):  
+            try:
+                print(f"**************call_num: {call_num}")
                 outputs = p.generate(
                     prompt={
                         "prompt": PROMPT_TEMPLATE,
@@ -577,14 +577,13 @@ async def test_lm_service_request_timeout_seconds_005(model: str, tp_size: int,
                     request_id=str(uuid.uuid4())
                 )
                 output = None
-                print("proxy is success")
                 async for o in outputs:
                     output = o
                     print(f"{o.outputs}", flush=True)
-                p.shutdown()
             except Exception as message:
-                print(f"error message is: {str(message)}")
-                assert "invalid literal" in str(message), "init success"
+                print(f"///////////error message is: {str(message)}")
+                assert server.check_log("timed out after 1s", 120), "init success"
+        p.shutdown()
 
 @pytest.mark.asyncio
 @pytest.mark.function
@@ -639,7 +638,7 @@ async def test_lm_service_request_timeout_seconds_006(model: str, tp_size: int,
         "--model", model, "--gpu-memory-utilization", "0.0",
         "--tensor-parallel-size",
         str(tp_size), "--enforce-eager", "--no-enable-prefix-caching",
-        "--max-model-len", "10000","--worker-addr",f"{e_addr}", "--max-num-batched-tokens", "10000",
+        "--max-model-len", "10000","--worker-addr",f"{e_addr}","--proxy-addr",f"{proxy_addr}", "--max-num-batched-tokens", "10000",
         "--max-num-seqs", "1", "--ec-transfer-config",
         f'{{"ec_connector_extra_config":{{"local_hostname":"{node_ips[1]}",'
         f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","global_segment_size": 32212254720, '
@@ -654,7 +653,7 @@ async def test_lm_service_request_timeout_seconds_006(model: str, tp_size: int,
             "--model", model, "--gpu-memory-utilization", "0.95",
             "--tensor-parallel-size",
             str(tp_size), "--enforce-eager", "--max-model-len", "10000",
-            "--max-num-batched-tokens", "10000","--worker-addr",f"{p_addr}", "--max-num-seqs", "128",
+            "--max-num-batched-tokens", "10000","--worker-addr",f"{p_addr}","--proxy-addr",f"{proxy_addr}", "--max-num-seqs", "128",
             "--ec-transfer-config",
             f'{{"ec_connector_extra_config":{{"local_hostname":"{node_ips[2]}",'
             f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","global_segment_size": 0, '
@@ -673,7 +672,7 @@ async def test_lm_service_request_timeout_seconds_006(model: str, tp_size: int,
             "--model", model, "--gpu-memory-utilization", "0.95",
             "--tensor-parallel-size",
             str(tp_size), "--enforce-eager", "--max-model-len", "10000",
-            "--max-num-batched-tokens", "10000","--worker-addr",f"{d_addr}", "--max-num-seqs", "128",
+            "--max-num-batched-tokens", "10000","--worker-addr",f"{d_addr}","--proxy-addr",f"{proxy_addr}", "--max-num-seqs", "128",
             "--kv-transfer-config",
             f'{{"kv_connector_extra_config": {{"local_hostname": "{node_ips[3]}", '
             f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","protocol": "tcp", '
@@ -690,7 +689,6 @@ async def test_lm_service_request_timeout_seconds_006(model: str, tp_size: int,
         "--default_kv_lease_ttl", "10000", "--eviction_ratio", "0.05",
         "--eviction_high_watermark_ratio", "0.9", "--metrics_port", str(metrics_port)
     ]
-    #proxy_args = ["--proxy-addr",f"{proxy_addr}","--worker-addr",f"{e_addr},{pd_addr}"]
 
     async with RemoteEPDServer(run_mode="worker",
                                store_type="mooncake",
@@ -711,7 +709,7 @@ async def test_lm_service_request_timeout_seconds_006(model: str, tp_size: int,
         )
         print("proxy is success")
         n_call = 3
-        for call_num in n_call:
+        for call_num in range(n_call):
             try:
                 print(f"**************call_num: {call_num}")
                 outputs = p.generate(
@@ -730,10 +728,11 @@ async def test_lm_service_request_timeout_seconds_006(model: str, tp_size: int,
                 async for o in outputs:
                     output = o
                     print(f"{o.outputs}", flush=True)
-                p.shutdown()
+                
             except Exception as message:
                 print(f"error message is: {str(message)}")
-                assert "invalid literal" in str(message), "init success"
+                assert server.check_log("timed out after 1s", 120), "init success"
+        p.shutdown()
 
 @pytest.mark.asyncio
 @pytest.mark.function
@@ -860,7 +859,7 @@ async def test_lm_service_request_timeout_seconds_007(model: str, tp_size: int,
         )
         print("proxy is success")
         n_call = 3
-        for call_num in n_call:
+        for call_num in range(n_call):
             try:
                 print(f"**************call_num: {call_num}")
                 outputs = p.generate(
