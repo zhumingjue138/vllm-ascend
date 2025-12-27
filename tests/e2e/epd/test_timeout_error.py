@@ -504,8 +504,7 @@ async def test_lm_service_request_timeout_seconds_005(model: str, tp_size: int,
     metrics_port = get_open_port()
     proxy_addr = f"127.0.0.1:{get_open_port()}"
     e_addr = f"127.0.0.1:{get_open_port()}"
-    p_addr = f"127.0.0.1:{get_open_port()}"
-    d_addr = f"127.0.0.1:{get_open_port()}"
+    pd_addr = f"127.0.0.1:{get_open_port()}"
 
     mooncake_ip = "0.0.0.0"
     e_server_args = [
@@ -523,37 +522,17 @@ async def test_lm_service_request_timeout_seconds_005(model: str, tp_size: int,
     ]
 
     pd_server_args = [
-        [
-            "--model", model, "--gpu-memory-utilization", "0.95",
-            "--tensor-parallel-size",
-            str(tp_size), "--enforce-eager", "--max-model-len", "10000",
-            "--max-num-batched-tokens", "10000", "--worker-addr", f"{p_addr}", "--max-num-seqs", "128",
-            "--ec-transfer-config",
-            f'{{"ec_connector_extra_config":{{"local_hostname":"{mooncake_ip}",'
-            f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","global_segment_size": 0, '
-            '"local_buffer_size": 1073741824, "protocol": "tcp","transfer_timeout":"20", "device_name": "",'
-            f'"master_server_address": "{mooncake_ip}:{rpc_port}","replica_num": 1, "fast_transfer":true, '
-            '"fast_transfer_buffer_size": 1},'
-            '"ec_connector":"ECMooncakeStorageConnector","ec_role": "ec_consumer"}',
-            "--kv-transfer-config",
-            f'{{"kv_connector_extra_config": {{"local_hostname": "{mooncake_ip}", '
-            f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","protocol": "tcp", '
-            f'"device_name": "", "master_server_address": "{mooncake_ip}:{rpc_port}", '
-            '"global_segment_size": 30000000000},"kv_connector": "MooncakeConnectorStoreV1", '
-            f'"kv_role": "kv_producer", "mooncake_rpc_port": "{rpc_port}"}}'
-        ],
-        [
-            "--model", model, "--gpu-memory-utilization", "0.95",
-            "--tensor-parallel-size",
-            str(tp_size), "--enforce-eager", "--max-model-len", "10000",
-            "--max-num-batched-tokens", "10000", "--worker-addr", f"{d_addr}", "--max-num-seqs", "128",
-            "--kv-transfer-config",
-            f'{{"kv_connector_extra_config": {{"local_hostname": "{mooncake_ip}", '
-            f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","protocol": "tcp", '
-            f'"device_name": "", "master_server_address": "{mooncake_ip}:{rpc_port}", '
-            '"global_segment_size": 30000000000},"kv_connector": "MooncakeConnectorStoreV1", '
-            f'"kv_role": "kv_consumer", "mooncake_rpc_port": "{rpc_port}"}}'
-        ]
+        "--model", model, "--gpu-memory-utilization", "0.95",
+        "--tensor-parallel-size",
+        str(tp_size), "--enforce-eager", "--max-model-len", "10000",
+        "--max-num-batched-tokens", "10000", "--worker-addr", f"{pd_addr}", "--max-num-seqs", "128",
+        "--ec-transfer-config",
+        f'{{"ec_connector_extra_config":{{"local_hostname":"{mooncake_ip}",'
+        f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","global_segment_size": 0, '
+        '"local_buffer_size": 1073741824, "protocol": "tcp","transfer_timeout":"20", "device_name": "",'
+        f'"master_server_address": "{mooncake_ip}:{rpc_port}","replica_num": 1, "fast_transfer":true, '
+        '"fast_transfer_buffer_size": 1},'
+        '"ec_connector":"ECMooncakeStorageConnector","ec_role": "ec_consumer"}'
     ]
 
     mooncake_args = [
@@ -563,7 +542,6 @@ async def test_lm_service_request_timeout_seconds_005(model: str, tp_size: int,
         "--default_kv_lease_ttl", "10000", "--eviction_ratio", "0.05",
         "--eviction_high_watermark_ratio", "0.9", "--metrics_port", str(metrics_port)
     ]
-    #proxy_args = ["--proxy-addr",f"{proxy_addr}","--worker-addr",f"{e_addr},{pd_addr}"]
 
     async with RemoteEPDServer(run_mode="worker",
                                store_type="mooncake",
@@ -575,18 +553,18 @@ async def test_lm_service_request_timeout_seconds_005(model: str, tp_size: int,
                                mooncake_args=mooncake_args) as server:
 
         print("vllm instance is ready")
-        p = Proxy(
-            proxy_addr=proxy_addr,
-            encode_addr_list=[e_addr],
-            pd_addr_list=[p_addr,d_addr],
-            model_name=model,
-            enable_health_monitor=True
-        )
-        print("proxy is success")
         n_call = 3
         for call_num in n_call:
             try:
                 print(f"**************call_num: {call_num}")
+                p = Proxy(
+                    proxy_addr=proxy_addr,
+                    encode_addr_list=[e_addr],
+                    pd_addr_list=[p_addr,d_addr],
+                    model_name=model,
+                    enable_health_monitor=True
+                )
+                print("proxy is success")
                 outputs = p.generate(
                     prompt={
                         "prompt": PROMPT_TEMPLATE,
