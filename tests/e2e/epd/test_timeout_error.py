@@ -851,10 +851,18 @@ async def test_lm_service_request_timeout_seconds_007(model: str, tp_size: int,
         )
         print("proxy is success")
         n_call = 3
+    
+    # 创建并发的generate任务
+        tasks = []
         for call_num in range(n_call):
-            try:
-                print(f"**************call_num: {call_num}")
-                outputs = p.generate(
+            print(f"**************Creating task for call_num: {call_num}")
+        
+        # 为每个调用创建独立的request_id
+            request_id = str(uuid.uuid4())
+            
+            # 创建异步任务
+            task = asyncio.create_task(
+                p.generate(
                     prompt={
                         "prompt": PROMPT_TEMPLATE,
                         "multi_modal_data": {"image": IMAGE_ARRAY},
@@ -863,17 +871,24 @@ async def test_lm_service_request_timeout_seconds_007(model: str, tp_size: int,
                         max_tokens=2000,
                         temperature=0.0
                     ),
-                    request_id=str(uuid.uuid4())
+                    request_id=request_id
                 )
-                output = None
-                print("proxy is success")
+            )
+            
+            # 包装任务以便处理输出
+            async def process_output(task_num, gen_task):
+                outputs = await gen_task
                 async for o in outputs:
-                    output = o
                     print(f"{o.outputs}", flush=True)
-                p.shutdown()
-            except Exception as message:
-                print(f"error message is: {str(message)}")
-                assert "invalid literal" in str(message), "init success"
+                assert server.check_log("timed out after 1s", 120), "init success"
+                
+            
+            tasks.append(process_output(call_num, task))
+        
+        # 并行执行所有任务
+        print("Starting parallel execution...")
+        results = await asyncio.gather(*tasks)
+        p.shutdown()
 
 
 
