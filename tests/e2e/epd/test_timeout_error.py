@@ -563,26 +563,23 @@ async def test_lm_service_request_timeout_seconds_005(model: str, tp_size: int,
         print("proxy is success")
         n_call = 3
         for call_num in range(n_call):  
-            try:
-                print(f"**************call_num: {call_num}")
-                outputs = p.generate(
-                    prompt={
-                        "prompt": PROMPT_TEMPLATE,
-                        "multi_modal_data": {"image": IMAGE_ARRAY},
-                    },
-                    sampling_params=SamplingParams(
-                        max_tokens=2000,
-                        temperature=0.0
-                    ),
-                    request_id=str(uuid.uuid4())
-                )
-                output = None
-                async for o in outputs:
-                    output = o
-                    print(f"{o.outputs}", flush=True)
-            except Exception as message:
-                print(f"///////////error message is: {str(message)}")
-                assert server.check_log("timed out after 1s", 120), "init success"
+            print(f"**************call_num: {call_num}")
+            outputs = p.generate(
+                prompt={
+                    "prompt": PROMPT_TEMPLATE,
+                    "multi_modal_data": {"image": IMAGE_ARRAY},
+                },
+                sampling_params=SamplingParams(
+                    max_tokens=2000,
+                    temperature=0.0
+                ),
+                request_id=str(uuid.uuid4())
+            )
+            output = None
+            async for o in outputs:
+                output = o
+                print(f"{o.outputs}", flush=True)
+            assert server.check_log("timed out after 1s", 120), "init success"
         p.shutdown()
 
 @pytest.mark.asyncio
@@ -701,37 +698,32 @@ async def test_lm_service_request_timeout_seconds_006(model: str, tp_size: int,
 
         print("vllm instance is ready")
         p = Proxy(
-            proxy_addr=proxy_addr,
-            encode_addr_list=[e_addr],
-            pd_addr_list=[p_addr,d_addr],
-            model_name=model,
-            enable_health_monitor=True
-        )
+                    proxy_addr=proxy_addr,
+                    encode_addr_list=[e_addr],
+                    pd_addr_list=[pd_addr],
+                    model_name=model,
+                    enable_health_monitor=True
+                )
         print("proxy is success")
         n_call = 3
-        for call_num in range(n_call):
-            try:
-                print(f"**************call_num: {call_num}")
-                outputs = p.generate(
-                    prompt={
-                        "prompt": PROMPT_TEMPLATE,
-                        "multi_modal_data": {"image": IMAGE_ARRAY},
-                    },
-                    sampling_params=SamplingParams(
-                        max_tokens=2000,
-                        temperature=0.0
-                    ),
-                    request_id=str(uuid.uuid4())
-                )
-                output = None
-                print("proxy is success")
-                async for o in outputs:
-                    output = o
-                    print(f"{o.outputs}", flush=True)
-                
-            except Exception as message:
-                print(f"error message is: {str(message)}")
-                assert server.check_log("timed out after 1s", 120), "init success"
+        for call_num in range(n_call):  
+            print(f"**************call_num: {call_num}")
+            outputs = p.generate(
+                prompt={
+                    "prompt": PROMPT_TEMPLATE,
+                    "multi_modal_data": {"image": IMAGE_ARRAY},
+                },
+                sampling_params=SamplingParams(
+                    max_tokens=2000,
+                    temperature=0.0
+                ),
+                request_id=str(uuid.uuid4())
+            )
+            output = None
+            async for o in outputs:
+                output = o
+                print(f"{o.outputs}", flush=True)
+            assert server.check_log("timed out after 1s", 120), "init success"
         p.shutdown()
 
 @pytest.mark.asyncio
