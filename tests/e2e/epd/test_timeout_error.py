@@ -700,7 +700,7 @@ async def test_lm_service_request_timeout_seconds_006(model: str, tp_size: int,
         p = Proxy(
                     proxy_addr=proxy_addr,
                     encode_addr_list=[e_addr],
-                    pd_addr_list=[pd_addr],
+                    pd_addr_list=[p_addr, d_addr],
                     model_name=model,
                     enable_health_monitor=True
                 )

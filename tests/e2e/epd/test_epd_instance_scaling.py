@@ -535,12 +535,13 @@ async def test_no_redis_proxy_1e1p1d_tcp_mooncake_ipv6_001(model: str, tp_size: 
 
 
     mooncake_ip = "::1"
+    proxy_addr = f"{mooncake_ip}:13800"
     e_server_args = [
         "--model", model, "--gpu-memory-utilization", "0.0",
         "--tensor-parallel-size",
         str(tp_size), "--enforce-eager", "--no-enable-prefix-caching",
         "--max-model-len", "20000", "--max-num-batched-tokens", "10000",
-        "--max-num-seqs", "1", "--ec-transfer-config",
+        "--max-num-seqs", "1", "--proxy-addr", f"{proxy_addr}", "--ec-transfer-config",
         f'{{"ec_connector_extra_config":{{"local_hostname":"{mooncake_ip}",'
         f'"metadata_server": "http://[{mooncake_ip}]:{http_metadata_server_port}/metadata","global_segment_size": 32212254720, '
         '"local_buffer_size": 1073741824, "protocol": "tcp","transfer_timeout":"20", "device_name": "",'
@@ -555,6 +556,7 @@ async def test_no_redis_proxy_1e1p1d_tcp_mooncake_ipv6_001(model: str, tp_size: 
             "--tensor-parallel-size",
             str(tp_size), "--enforce-eager", "--max-model-len", "20000",
             "--max-num-batched-tokens", "10000", "--max-num-seqs", "128",
+            "--proxy-addr", f"{proxy_addr}",
             "--ec-transfer-config",
             f'{{"ec_connector_extra_config":{{"local_hostname":"{mooncake_ip}",'
             f'"metadata_server": "http://[{mooncake_ip}]:{http_metadata_server_port}/metadata","global_segment_size": 0, '
@@ -574,6 +576,7 @@ async def test_no_redis_proxy_1e1p1d_tcp_mooncake_ipv6_001(model: str, tp_size: 
             "--tensor-parallel-size",
             str(tp_size), "--enforce-eager", "--max-model-len", "20000",
             "--max-num-batched-tokens", "10000", "--max-num-seqs", "128",
+            "--proxy-addr", f"{proxy_addr}",
             "--kv-transfer-config",
             f'{{"kv_connector_extra_config": {{"local_hostname": "{mooncake_ip}", '
             f'"metadata_server": "http://[{mooncake_ip}]:{http_metadata_server_port}/metadata","protocol": "tcp", '
@@ -591,9 +594,7 @@ async def test_no_redis_proxy_1e1p1d_tcp_mooncake_ipv6_001(model: str, tp_size: 
         "--eviction_high_watermark_ratio", "0.9", "--metrics_port", str(metrics_port)
     ]
     proxy_args = [
-        "--host", f"{mooncake_ip}", "--port", "10001",
-        "--proxy-config",
-        f'{{"proxy_addr":"{mooncake_ip}:13800"}}'
+        "--enable_health_monitor", "True"
     ]
 
     aisbench_cases = [{
@@ -685,12 +686,13 @@ async def test_no_redis_proxy_1e1p1d_cross_tcp_mooncake_ipv4_001(model: str, tp_
         cluster.add_node_info("d", 1, CONTAINER_NAME)
     node_ips = get_cluster_ips()
     mooncake_ip = node_ips[0]
+    proxy_addr = f"{mooncake_ip}:13800"
     e_server_args = [
         "--model", model, "--gpu-memory-utilization", "0.0",
         "--tensor-parallel-size",
         str(tp_size), "--enforce-eager", "--no-enable-prefix-caching",
         "--max-model-len", "20000", "--max-num-batched-tokens", "10000",
-        "--max-num-seqs", "1", "--ec-transfer-config",
+        "--max-num-seqs", "1", "--proxy-addr", f"{proxy_addr}", "--ec-transfer-config",
         f'{{"ec_connector_extra_config":{{"local_hostname":"{node_ips[1]}",'
         f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","global_segment_size": 32212254720, '
         '"local_buffer_size": 1073741824, "protocol": "tcp","transfer_timeout":"20", "device_name": "",'
@@ -705,6 +707,7 @@ async def test_no_redis_proxy_1e1p1d_cross_tcp_mooncake_ipv4_001(model: str, tp_
             "--tensor-parallel-size",
             str(tp_size), "--enforce-eager", "--max-model-len", "20000",
             "--max-num-batched-tokens", "10000", "--max-num-seqs", "128",
+            "--proxy-addr", f"{proxy_addr}",
             "--ec-transfer-config",
             f'{{"ec_connector_extra_config":{{"local_hostname":"{node_ips[1]}",'
             f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","global_segment_size": 0, '
@@ -724,6 +727,7 @@ async def test_no_redis_proxy_1e1p1d_cross_tcp_mooncake_ipv4_001(model: str, tp_
             "--tensor-parallel-size",
             str(tp_size), "--enforce-eager", "--max-model-len", "20000",
             "--max-num-batched-tokens", "10000", "--max-num-seqs", "128",
+            "--proxy-addr", f"{proxy_addr}",
             "--kv-transfer-config",
             f'{{"kv_connector_extra_config": {{"local_hostname": "{node_ips[1]}", '
             f'"metadata_server": "http://{mooncake_ip}:{http_metadata_server_port}/metadata","protocol": "tcp", '
@@ -741,9 +745,7 @@ async def test_no_redis_proxy_1e1p1d_cross_tcp_mooncake_ipv4_001(model: str, tp_
             "--eviction_high_watermark_ratio", "0.9", "--metrics_port", str(metrics_port)
     ]
     proxy_args = [
-            "--host", f"{mooncake_ip}", "--port", "10001",
-        "--proxy-config",
-        f'{{"proxy_addr":"{mooncake_ip}:13800"}}'
+            "--enable_health_monitor", "True"
     ]
 
     aisbench_cases = [{
