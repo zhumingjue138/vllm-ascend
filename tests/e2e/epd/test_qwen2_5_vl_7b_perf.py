@@ -57,7 +57,7 @@ async def test_pd_mix_001(model: str, tp_size: int, dataset_name: str,
     ]
     warmup_cases = [{
         "case_type": "performance",
-        "dataset_path": os.path.join(DATASET_PATH, dataset_name),
+        "dataset_path": os.path.join(DATASET_PATH, "simulate_truth_req"),
         "request_conf": "vllm_api_stream_chat",
         "dataset_conf": "textvqa/textvqa_gen_base64",
         "num_prompts": 50,
@@ -156,7 +156,7 @@ async def test_1e3pd_001(model: str, tp_size: int, dataset_name: str,
 
     warmup_cases = [{
         "case_type": "performance",
-        "dataset_path": os.path.join(DATASET_PATH, dataset_name),
+        "dataset_path": os.path.join(DATASET_PATH, "simulate_truth_req"),
         "request_conf": "vllm_api_stream_chat",
         "dataset_conf": "textvqa/textvqa_gen_base64",
         "num_prompts": 50,
@@ -263,7 +263,7 @@ async def test_1e2pd_001(model: str, tp_size: int, dataset_name: str,
 
     warmup_cases = [{
         "case_type": "performance",
-        "dataset_path": os.path.join(DATASET_PATH, dataset_name),
+        "dataset_path": os.path.join(DATASET_PATH, "simulate_truth_req"),
         "request_conf": "vllm_api_stream_chat",
         "dataset_conf": "textvqa/textvqa_gen_base64",
         "num_prompts": 50,

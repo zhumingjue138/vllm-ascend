@@ -819,8 +819,27 @@ class RemoteEPDServer:
             self._share_info.add_addr_list(f"http://localhost:{e_serve_arg[index_e + 1]}", "e")
             self._run_server(e_serve_arg, env, f"[ENCODE_{i}] ")
 
+        current_d_num = -1
+        current_p_num = -1
         for i, pd_serve_arg in enumerate(self.pd_serve_args_list):
-            role_env = self.env_dict.get_node_env("pd", i)
+            if "--kv-transfer-config" in pd_serve_arg:
+                kv_index = pd_serve_arg.index("--kv-transfer-config")
+                if "kv_consumer" in pd_serve_arg[kv_index + 1]:
+                    current_d_num += 1
+                    log_prefix = f"[D_{current_d_num}] "
+                    role = "d"
+                    current_node_index = current_d_num
+                elif "kv_producer" in pd_serve_arg[kv_index + 1]:
+                    current_p_num += 1
+                    log_prefix = f"[P_{current_p_num}] "
+                    role = "p"
+                    current_node_index = current_p_num
+            else:
+                log_prefix = f"[PD_{i}] "
+                role = "pd"
+                current_node_index = i
+
+            role_env = self.env_dict.get_node_env(role, current_node_index)
             env = (
                 {**common_env, **role_env}
                 if common_env is not None and role_env is not None
@@ -832,8 +851,8 @@ class RemoteEPDServer:
             if "--port" not in pd_serve_arg:
                 pd_serve_arg.extend(["--port", str(pd_port)])
             index_pd = pd_serve_arg.index("--port")
-            self._share_info.add_addr_list(f"http://localhost:{pd_serve_arg[index_pd + 1]}", "pd")
-            self._run_server(pd_serve_arg, env, f"[PD_{i}] ")
+            self._share_info.add_addr_list(f"http://localhost:{pd_serve_arg[index_pd + 1]}", role)
+            self._run_server(pd_serve_arg, env, log_prefix)
 
     async def _wait_for_vllm_worker(self, max_wait_seconds) -> None:
         from lm_service.protocol.protocol import ServerType
@@ -1053,9 +1072,18 @@ class DisaggEpdProxy:
         proxy_args = [
             "--host", "127.0.0.1", "--port",
             str(self.port), "--encode-servers-urls",
-            ",".join(self.server._share_info.get_addr_list("e")), "--decode-servers-urls",
-            ",".join(self.server._share_info.get_addr_list("pd")), "--prefill-servers-urls", "disable"
+            ",".join(self.server._share_info.get_addr_list("e"))
         ]
+
+        if self.server._share_info.get_addr_list("pd"):
+            proxy_args.extend(["--decode-servers-urls",
+            ",".join(self.server._share_info.get_addr_list("pd")), "--prefill-servers-urls", "disable"])
+        else:
+            proxy_args.extend(["--decode-servers-urls",
+                               ",".join(self.server._share_info.get_addr_list("d")), "--prefill-servers-urls",
+                               ",".join(self.server._share_info.get_addr_list("p"))])
+
+
         print(f"proxy param is: {proxy_args}")
         proxy_args = ["python", DISAGG_EPD_PROXY_SCRIPT, *proxy_args]
         self._proc_list.append(run_server_new_session(proxy_args, self.env_dict, "[PRXOY] ", self.server._output))

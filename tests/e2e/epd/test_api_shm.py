@@ -1387,7 +1387,7 @@ DATASET_NAME = ["simulate_truth"]
 @pytest.mark.parametrize("tp_size", TENSOR_PARALLELS)
 @pytest.mark.parametrize("dataset_name", DATASET_NAME)
 @pytest.mark.parametrize("request_rate", REQUEST_RATE)
-async def test_1e1pd_shm_tcp_003(model: str, tp_size: int, dataset_name: str,
+async def test_1e1pd_shm_ipc_001(model: str, tp_size: int, dataset_name: str,
                                  request_rate: float):
     '''
     1E1PD 单机部署
@@ -1460,7 +1460,7 @@ async def test_1e1pd_shm_tcp_003(model: str, tp_size: int, dataset_name: str,
         "request_rate": request_rate * (e_num + pd_num*4),
         "baseline": 1,
         "seed": 77,
-        "result_file_name": f"{dataset_name}_1E1PD_shm_tcp_003",
+        "result_file_name": f"{dataset_name}_1E1PD_shm_ipc_001",
         "threshold": 0.97
     }]
 
