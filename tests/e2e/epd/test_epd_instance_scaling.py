@@ -535,7 +535,7 @@ async def test_no_redis_proxy_1e1p1d_tcp_mooncake_ipv6_001(model: str, tp_size: 
 
 
     mooncake_ip = "::1"
-    proxy_addr = f"{mooncake_ip}:13800"
+    proxy_addr = f"[{mooncake_ip}]:13800"
     e_server_args = [
         "--model", model, "--gpu-memory-utilization", "0.0",
         "--tensor-parallel-size",
