@@ -41,7 +41,8 @@ async def test_proxy1e1pd_mooncake_ipc_001(model: str, tp_size: int, dataset: st
     ec transfer: mooncake
     通信方式: ipc
     '''
-
+    e_num = 1
+    pd_num = 1
     env = {
         "VLLM_NIXL_SIDE_CHANNEL_PORT": "6000",
         "LM_SERVICE_REQUEST_TIMEOUT_SECONDS": "300",
@@ -60,8 +61,7 @@ async def test_proxy1e1pd_mooncake_ipc_001(model: str, tp_size: int, dataset: st
         env_dict.add_env("pd", "ASCEND_RT_VISIBLE_DEVICES", str(i + e_num), index=i)
 
 
-    e_num = 1
-    pd_num = 1
+    
     pd_server_args = list()
 
     rpc_port = get_open_port()
