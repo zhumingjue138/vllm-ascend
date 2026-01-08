@@ -202,7 +202,7 @@ async def test_proxy1e1pdmerge_datasystem_ipc_001(model: str, tp_size: int, data
         "case_type":
             "performance",
         "dataset_path":
-            os.path.join(DATASET_PATH, "simulate_truth"),
+            os.path.join(DATASET_PATH, "image_4"),
         "request_conf":
             "vllm_api_stream_chat",
         "dataset_conf":
@@ -322,7 +322,7 @@ async def test_proxy1e2pd_datasystem_ipc_001(model: str, tp_size: int, dataset: 
         "case_type":
             "performance",
         "dataset_path":
-            os.path.join(DATASET_PATH, "simulate_truth"),
+            os.path.join(DATASET_PATH, "simulate_truth_samereq"),
         "request_conf":
             "vllm_api_stream_chat",
         "dataset_conf":
@@ -443,7 +443,7 @@ async def test_proxy1e2pd_datasystem_tcp_ipv4_001(model: str, tp_size: int, data
         "case_type":
             "performance",
         "dataset_path":
-            os.path.join(DATASET_PATH, "simulate_truth"),
+            os.path.join(DATASET_PATH, "simulate_truth_samereq"),
         "request_conf":
             "vllm_api_stream_chat",
         "dataset_conf":
@@ -564,7 +564,7 @@ async def test_proxy1e2pd_datasystem_tcp_ipv6_001(model: str, tp_size: int, data
         "case_type":
             "performance",
         "dataset_path":
-            os.path.join(DATASET_PATH, "simulate_truth"),
+            os.path.join(DATASET_PATH, "simulate_truth_samereq"),
         "request_conf":
             "vllm_api_stream_chat",
         "dataset_conf":
@@ -814,7 +814,7 @@ async def test_proxy3e5pd_datasystem_tcp_ipv6_001(model: str, tp_size: int, data
         "case_type":
             "performance",
         "dataset_path":
-            os.path.join(DATASET_PATH, "simulate_truth"),
+            os.path.join(DATASET_PATH, "simulate_truth_samereq"),
         "request_conf":
             "vllm_api_stream_chat",
         "dataset_conf":
@@ -950,7 +950,7 @@ async def test_proxy1e1p1d_datasystem_ipc_001(model: str, tp_size: int, dataset:
         "case_type":
             "performance",
         "dataset_path":
-            os.path.join(DATASET_PATH, "simulate_truth"),
+            os.path.join(DATASET_PATH, "simulate_truth_samereq"),
         "request_conf":
             "vllm_api_stream_chat",
         "dataset_conf":
@@ -1091,7 +1091,7 @@ async def test_proxy2e3p3d_datasystem_tcp_ipv6_001(model: str, tp_size: int, dat
         "case_type":
             "performance",
         "dataset_path":
-            os.path.join(DATASET_PATH, "simulate_truth"),
+            os.path.join(DATASET_PATH, "simulate_truth_samereq"),
         "request_conf":
             "vllm_api_stream_chat",
         "dataset_conf":
@@ -1368,7 +1368,7 @@ async def test_proxy1e1p1d_datasystem_tcp_ipv4_001(model: str, tp_size: int, dat
         "case_type":
             "performance",
         "dataset_path":
-            os.path.join(DATASET_PATH, "simulate_truth"),
+            os.path.join(DATASET_PATH, "simulate_truth_samereq"),
         "request_conf":
             "vllm_api_stream_chat",
         "dataset_conf":
@@ -1505,7 +1505,7 @@ async def test_proxy1e1p1d_datasystem_tcp_ipv6_001(model: str, tp_size: int, dat
         "case_type":
             "performance",
         "dataset_path":
-            os.path.join(DATASET_PATH, "simulate_truth"),
+            os.path.join(DATASET_PATH, "simulate_truth_samereq"),
         "request_conf":
             "vllm_api_stream_chat",
         "dataset_conf":
@@ -1640,7 +1640,7 @@ async def test_proxy_1e_2pd_cross_datasystem_tcp_ipv4_001(model: str, tp_size: i
         "case_type":
             "performance",
         "dataset_path":
-            os.path.join(DATASET_PATH, "simulate_truth"),
+            os.path.join(DATASET_PATH, "simulate_truth_samereq"),
         "request_conf":
             "vllm_api_stream_chat",
         "dataset_conf":
@@ -1910,7 +1910,7 @@ async def test_proxy1e_2pd_cross_datasystem_tcp_ipv6_001(model: str, tp_size: in
         "case_type":
             "performance",
         "dataset_path":
-            os.path.join(DATASET_PATH, "simulate_truth"),
+            os.path.join(DATASET_PATH, "simulate_truth_samereq"),
         "request_conf":
             "vllm_api_stream_chat",
         "dataset_conf":
@@ -3285,7 +3285,7 @@ async def test_proxy1e_2pd_cross_datasystem_tcp_ipv6_stability_001(model: str, t
         "case_type":
             "performance",
         "dataset_path":
-            os.path.join(DATASET_PATH, "simulate_truth"),
+            os.path.join(DATASET_PATH, "simulate_truth_samereq"),
         "request_conf":
             "vllm_api_stream_chat",
         "dataset_conf":
@@ -3434,7 +3434,7 @@ async def test_proxy1e_1p_1d_cross_datasystem_tcp_ipv4_stability_001(model: str,
         "case_type":
             "performance",
         "dataset_path":
-            os.path.join(DATASET_PATH, "simulate_truth"),
+            os.path.join(DATASET_PATH, "simulate_truth_samereq"),
         "request_conf":
             "vllm_api_stream_chat",
         "dataset_conf":
