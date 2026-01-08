@@ -3,6 +3,7 @@ import os
 import pytest
 import pytest_asyncio
 import copy
+import socket
 
 from tests.e2e.conftest import RemoteOpenAIServer
 from tests.e2e.conftest import RemoteEPDServer
