@@ -164,7 +164,8 @@ async def test_proxy1e1pd_mooncake_ipc_001(model: str, tp_size: int, dataset: st
                                e_num=e_num,
                                env_dict=env_dict,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
@@ -314,7 +315,8 @@ async def test_proxy1e1pdmerge_mooncake_ipc_001(model: str, tp_size: int, datase
                                e_num=e_num,
                                env_dict=env_dict,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
@@ -463,7 +465,8 @@ async def test_proxy1e2pd_mooncake_ipc_001(model: str, tp_size: int, dataset: st
                                e_num=e_num,
                                env_dict=env_dict,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
@@ -611,7 +614,8 @@ async def test_proxy1e2pd_mooncake_tcp_ipv4_001(model: str, tp_size: int, datase
                                e_num=e_num,
                                env_dict=env_dict,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
@@ -759,7 +763,8 @@ async def test_proxy1e2pd_mooncake_tcp_ipv6_001(model: str, tp_size: int, datase
                                e_num=e_num,
                                env_dict=env_dict,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
@@ -913,7 +918,8 @@ async def test_proxy1e2pd_mooncake_tcp_ipv6_002(model: str, tp_size: int, datase
                                e_num=e_num,
                                env_dict=env_dict,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
@@ -1068,7 +1074,8 @@ async def test_proxy3e5pd_mooncake_tcp_ipv6_001(model: str, tp_size: int, datase
                                env_dict=env_dict,
                                proxy_args=proxy_args,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
@@ -1238,7 +1245,8 @@ async def test_proxy1e1p1d_mooncake_ipc_001(model: str, tp_size: int, dataset: s
                                e_num=e_num,
                                env_dict=env_dict,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
@@ -1410,7 +1418,8 @@ async def test_proxy2e3p3d_mooncake_tcp_ipv6_001(model: str, tp_size: int, datas
                                e_num=e_num,
                                env_dict=env_dict,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
@@ -1584,7 +1593,8 @@ async def test_proxy1e1p1d_mooncake_ipc_002(model: str, tp_size: int, dataset: s
                                e_num=e_num,
                                env_dict=env_dict,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
@@ -1753,7 +1763,8 @@ async def test_proxy1e1p1d_mooncake_tcp_ipv4_001(model: str, tp_size: int, datas
                                e_num=e_num,
                                env_dict=env_dict,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
@@ -1923,7 +1934,8 @@ async def test_proxy1e1p1d_mooncake_tcp_ipv6_001(model: str, tp_size: int, datas
                                e_num=e_num,
                                env_dict=env_dict,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
@@ -2087,7 +2099,8 @@ async def test_proxy_1e_2pd_cross_mooncake_tcp_ipv4_001(model: str, tp_size: int
                                env_dict=env_dict,
                                node_info=cluster,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
@@ -2255,7 +2268,8 @@ async def test_proxy_1e_2pd_cross_mooncake_tcp_ipv4_002(model: str, tp_size: int
                                env_dict=env_dict,
                                node_info=cluster,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
@@ -2414,7 +2428,8 @@ async def test_proxy1e_2pd_cross_mooncake_tcp_ipv6_001(model: str, tp_size: int,
                                env_dict=env_dict,
                                node_info=cluster,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
@@ -2594,7 +2609,8 @@ async def test_proxy1e1p_1d_cross_mooncake_tcp_ipv6_001(model: str, tp_size: int
                                env_dict=env_dict,
                                node_info=cluster,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
@@ -2775,7 +2791,8 @@ async def test_proxy1e_1p_1d_cross_mooncake_tcp_ipv4_001(model: str, tp_size: in
                                env_dict=env_dict,
                                node_info=cluster,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
@@ -2962,7 +2979,8 @@ async def test_proxy2e3p_3d_cross_mooncake_tcp_ipv6_001(model: str, tp_size: int
                                node_info=cluster,
                                proxy_args=proxy_args,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
@@ -3109,7 +3127,8 @@ async def test_proxy1e2pd_mooncake_ipc_acc_001(model: str, tp_size: int, dataset
                                e_num=e_num,
                                env_dict=env_dict,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
@@ -3253,7 +3272,8 @@ async def test_proxy1e2pd_mooncake_tcp_ipv4_acc_001(model: str, tp_size: int, da
                                e_num=e_num,
                                env_dict=env_dict,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
@@ -3421,7 +3441,8 @@ async def test_proxy1e1p1d_mooncake_tcp_ipv4_acc_001(model: str, tp_size: int, d
                                e_num=e_num,
                                env_dict=env_dict,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
@@ -3588,7 +3609,8 @@ async def test_proxy1e1p1d_mooncake_tcp_ipv6_acc_001(model: str, tp_size: int, d
                                e_num=e_num,
                                env_dict=env_dict,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
@@ -3751,7 +3773,8 @@ async def test_proxy_1e_2pd_cross_mooncake_tcp_ipv4_acc_001(model: str, tp_size:
                                env_dict=env_dict,
                                node_info=cluster,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
@@ -3927,7 +3950,8 @@ async def test_proxy1e1p_1d_cross_mooncake_tcp_ipv6_acc_001(model: str, tp_size:
                                env_dict=env_dict,
                                node_info=cluster,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
@@ -4086,7 +4110,8 @@ async def test_proxy1e_2pd_cross_mooncake_tcp_ipv6_stability_001(model: str, tp_
                                env_dict=env_dict,
                                node_info=cluster,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
@@ -4268,7 +4293,8 @@ async def test_proxy1e_1p_1d_cross_mooncake_tcp_ipv4_stability_001(model: str, t
                                env_dict=env_dict,
                                node_info=cluster,
                                e_serve_args=e_server_args,
-                               pd_serve_args=pd_server_args) as server:
+                               pd_serve_args=pd_server_args,
+                               mooncake_args=mooncake_args) as server:
 
         # warm up
         run_aisbench_cases(model=model,
