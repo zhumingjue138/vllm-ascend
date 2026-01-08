@@ -59,7 +59,7 @@ async def test_proxy1e1pd_mooncake_ipc_001(model: str, tp_size: int, dataset: st
 
 
     e_num = 1
-    pd_num = 2
+    pd_num = 1
     pd_server_args = list()
 
     rpc_port = get_open_port()
@@ -110,7 +110,7 @@ async def test_proxy1e1pd_mooncake_ipc_001(model: str, tp_size: int, dataset: st
         "case_type":
             "performance",
         "dataset_path":
-            os.path.join(DATASET_PATH, "simulate_truth"),
+            os.path.join(DATASET_PATH, "image_4"),
         "request_conf":
             "vllm_api_stream_chat",
         "dataset_conf":
@@ -470,7 +470,7 @@ async def test_proxy1e2pd_mooncake_ipc_001(model: str, tp_size: int, dataset: st
                                verify=False,
                                save=False)
         # test perf
-        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases)
+        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases, card_num=e_num+pd_num)
 
 REQUEST_RATE = [0.28, 0.56, 0.84]
 DATASET_NAME = ["simulate_truth","image_4"]
@@ -618,7 +618,7 @@ async def test_proxy1e2pd_mooncake_tcp_ipv4_001(model: str, tp_size: int, datase
                                verify=False,
                                save=False)
         # test perf
-        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases)
+        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases, card_num=e_num+pd_num)
 
 REQUEST_RATE = [0.28, 0.56, 0.84]
 DATASET_NAME = ["simulate_truth","image_4"]
@@ -920,7 +920,7 @@ async def test_proxy1e2pd_mooncake_tcp_ipv6_002(model: str, tp_size: int, datase
                                verify=False,
                                save=False)
         # test perf
-        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases)
+        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases, card_num=e_num+pd_num)
 
 REQUEST_RATE = [0.28, 0.56, 0.84]
 DATASET_NAME = ["simulate_truth"]
@@ -1075,7 +1075,7 @@ async def test_proxy3e5pd_mooncake_tcp_ipv6_001(model: str, tp_size: int, datase
                                verify=False,
                                save=False)
         # test perf
-        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases)
+        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases, card_num=e_num+pd_num)
 
 REQUEST_RATE = [0.28, 0.56, 0.84]
 DATASET_NAME = ["simulate_truth","image_4"]
@@ -1245,7 +1245,7 @@ async def test_proxy1e1p1d_mooncake_ipc_001(model: str, tp_size: int, dataset: s
                                verify=False,
                                save=False)
         # test perf
-        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases)
+        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases, card_num=e_num+p_num+d_num)
 
 REQUEST_RATE = [0.28, 0.56, 0.84]
 DATASET_NAME = ["simulate_truth"]
@@ -1417,7 +1417,7 @@ async def test_proxy2e3p3d_mooncake_tcp_ipv6_001(model: str, tp_size: int, datas
                                verify=False,
                                save=False)
         # test perf
-        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases)
+        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases, card_num=e_num+p_num+d_num)
 
 REQUEST_RATE = [0.28, 0.56, 0.84]
 DATASET_NAME = ["simulate_truth_samereq"]
@@ -1591,7 +1591,7 @@ async def test_proxy1e1p1d_mooncake_ipc_002(model: str, tp_size: int, dataset: s
                                verify=False,
                                save=False)
         # test perf
-        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases)
+        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases, card_num=e_num+p_num+d_num)
 
 REQUEST_RATE = [0.28, 0.56, 0.84]
 DATASET_NAME = ["simulate_truth","image_4"]
@@ -1760,7 +1760,7 @@ async def test_proxy1e1p1d_mooncake_tcp_ipv4_001(model: str, tp_size: int, datas
                                verify=False,
                                save=False)
         # test perf
-        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases)
+        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases, card_num=e_num+p_num+d_num)
 
 
 REQUEST_RATE = [0.28, 0.56, 0.84]
@@ -2094,7 +2094,7 @@ async def test_proxy_1e_2pd_cross_mooncake_tcp_ipv4_001(model: str, tp_size: int
                                verify=False,
                                save=False)
         # test perf
-        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases)
+        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases, card_num=e_num+pd_num)
 
 REQUEST_RATE = [0.28, 0.56, 0.84]
 DATASET_NAME = ["simulate_truth_samereq"]
@@ -2262,7 +2262,7 @@ async def test_proxy_1e_2pd_cross_mooncake_tcp_ipv4_002(model: str, tp_size: int
                                verify=False,
                                save=False)
         # test perf
-        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases)
+        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases, card_num=e_num+pd_num)
 
 REQUEST_RATE = [0.28, 0.56, 0.84]
 DATASET_NAME = ["simulate_truth"]
@@ -2421,7 +2421,7 @@ async def test_proxy1e_2pd_cross_mooncake_tcp_ipv6_001(model: str, tp_size: int,
                                verify=False,
                                save=False)
         # test perf
-        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases)
+        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases, card_num=e_num+pd_num)
 
 REQUEST_RATE = [0.28, 0.56, 0.84]
 DATASET_NAME = ["simulate_truth"]
@@ -2601,7 +2601,7 @@ async def test_proxy1e1p_1d_cross_mooncake_tcp_ipv6_001(model: str, tp_size: int
                                verify=False,
                                save=False)
         # test perf
-        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases)
+        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases, card_num=e_num+p_num+d_num)
 
 REQUEST_RATE = [0.28, 0.56, 0.84]
 DATASET_NAME = ["simulate_truth"]
@@ -2782,7 +2782,7 @@ async def test_proxy1e_1p_1d_cross_mooncake_tcp_ipv4_001(model: str, tp_size: in
                                verify=False,
                                save=False)
         # test perf
-        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases)
+        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases, card_num=e_num+p_num+d_num)
 
 REQUEST_RATE = [0.28, 0.56, 0.84]
 DATASET_NAME = ["simulate_truth"]
@@ -2969,7 +2969,7 @@ async def test_proxy2e3p_3d_cross_mooncake_tcp_ipv6_001(model: str, tp_size: int
                                verify=False,
                                save=False)
         # test perf
-        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases)
+        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases, card_num=e_num+p_num+d_num)
 
 
 DATASET_NAME = ["textvqa_subset"]
@@ -4093,7 +4093,7 @@ async def test_proxy1e_2pd_cross_mooncake_tcp_ipv6_stability_001(model: str, tp_
                                verify=False,
                                save=False)
         # test stability
-        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases)
+        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases, card_num=e_num+pd_num)
 
 REQUEST_RATE = [0.84]
 DATASET_NAME = ["simulate_truth"]
@@ -4275,5 +4275,5 @@ async def test_proxy1e_1p_1d_cross_mooncake_tcp_ipv4_stability_001(model: str, t
                                verify=False,
                                save=False)
         # test stability
-        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases)
+        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases, card_num=e_num+p_num+d_num)
 
