@@ -1871,7 +1871,7 @@ async def test_proxy1e_2pd_cross_datasystem_tcp_ipv6_001(model: str, tp_size: in
         "PYTORCH_NPU_ALLOC_CONF": "expandable_segments:True"
     }
     env_dict = EnvManager()
-    node_ips = get_cluster_ips()
+    node_ips = get_cluster_ips(family=socket.AF_INET6)
     env_dict.add_env("common", env_dict=env)
     env_dict.add_env("proxy", "MC_TCP_BIND_ADDRESS", f"{node_ips[0]}")
     env_dict.add_env("e", "MC_TCP_BIND_ADDRESS", f"{node_ips[0]}")
