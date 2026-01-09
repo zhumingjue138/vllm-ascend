@@ -13,6 +13,7 @@ from tests.e2e.nightly.multi_node.config.multi_node_epd_config import ClusterMan
 
 model_path = load_config().get("model_path")
 CONTAINER_NAME = load_config().get("container_name")
+
 MODELS = [os.path.join(model_path, "Qwen2.5-VL-7B-Instruct")]
 DATASET_PATH = load_config().get("dataset_path")
 SHARED_STORAGE_PATH = "/dev/shm/epd/storage"
