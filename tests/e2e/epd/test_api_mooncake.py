@@ -15,6 +15,7 @@ from vllm.utils import get_open_port
 
 model_path = load_config().get("model_path")
 MODELS = [os.path.join(model_path, "Qwen2.5-VL-7B-Instruct")]
+CONTAINER_NAME = load_config().get("container_name")
 DATASET_PATH = load_config().get("dataset_path")
 SHARED_STORAGE_PATH = "/dev/shm/epd/storage"
 
