@@ -40,6 +40,7 @@ async def test_redis_proxy_1e1p1d_tcp_mooncake_ipv6_001(model: str, tp_size: int
     存储类型：EC mooncake , KV mooncake
     通信方式：redis worker mooncake ipv6
     redis通信方式： 使用域名
+    拉起1e1p1d实例后，在进行扩缩容实例，扩容用python api扩容epd实例和proxy，实例参数和拉起时的参数一致，proxy的post端口与api_port错开，缩容用kill -15缩容实例对应的主进程
     '''
     e_num = 1
     p_num = 1
@@ -193,6 +194,7 @@ async def test_redis_proxy_1e1p1d_cross_tcp_mooncake_ipv4_001(model: str, tp_siz
     存储类型：EC mooncake , KV mooncake
     通信方式：redis worker mooncake ipv4
     redis通信方式： 使用域名
+    拉起1e1p1d实例后，在进行扩缩容实例，扩容用python api扩容epd实例和proxy，实例参数和拉起时的参数一致，proxy的post端口与api_port错开，缩容用kill -15缩容实例对应的主进程
     '''
     e_num = 1
     p_num = 1
@@ -358,6 +360,7 @@ async def test_no_redis_2proxy_1e1p1d_tcp_mooncake_ipv6_001(model: str, tp_size:
     部署形态： 1E1P1D、单机
     存储类型：EC mooncake , KV mooncake
     通信方式：worker mooncake ipv6
+    拉起1e1p1d实例后再额外扩容一个proxy，在进行扩缩容实例，扩容用python api扩容epd实例，实例参数和拉起时的参数一致，需额外加上自己的端口和2个proxy的端口，缩容用kill -15缩容实例对应的主进程
     '''
     e_num = 1
     p_num = 1
@@ -506,6 +509,7 @@ async def test_no_redis_1proxy_1e1p1d_cross_tcp_mooncake_ipv4_001(model: str, tp
     部署形态： 1E1P1D、跨机
     存储类型：EC mooncake , KV mooncake
     通信方式：worker mooncake ipv4
+    拉起1e1p1d实例后，在进行扩缩容实例，扩容用python api扩容epd实例，实例参数和拉起时的参数一致，需额外加上自己的端口和proxy的端口，缩容用kill -15缩容实例对应的主进程
     '''
     e_num = 1
     p_num = 1
@@ -658,6 +662,7 @@ async def test_no_redis_2proxy_1e1p1d_cross_tcp_mooncake_ipv4_001(model: str, tp
     部署形态： 1E1P1D、跨机
     存储类型：EC mooncake , KV mooncake
     通信方式：worker mooncake ipv4
+    拉起1e1p1d实例后再额外扩容一个proxy，在进行扩缩容实例，扩容用python api扩容epd实例，实例参数和拉起时的参数一致，需额外加上自己的端口和2个proxy的端口，缩容用kill -15缩容实例对应的主进程
     '''
     e_num = 1
     p_num = 1
