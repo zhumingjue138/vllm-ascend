@@ -162,8 +162,8 @@ async def test_redis_proxy_1e1p1d_tcp_mooncake_ipv6_001(model: str, tp_size: int
                                kv_store_type="mooncake",
                                proxy_type="api_server",
                                api_server_port=api_port,
-                               pd_num=2,
-                               e_num=1,
+                               pd_num=p_num+d_num,
+                               e_num=e_num,
                                env_dict=env_dict,
                                e_serve_args=e_server_args,
                                pd_serve_args=pd_server_args,
@@ -172,7 +172,7 @@ async def test_redis_proxy_1e1p1d_tcp_mooncake_ipv6_001(model: str, tp_size: int
         # aisbench test
         run_aisbench_cases(model=model,
                            port=api_port,
-                           card_num=3,
+                           card_num=e_num+p_num+d_num,
                            aisbench_cases=aisbench_cases,
                            verify=False,
                            save=False)
@@ -326,8 +326,8 @@ async def test_redis_proxy_1e1p1d_cross_tcp_mooncake_ipv4_001(model: str, tp_siz
                                kv_store_type="mooncake",
                                proxy_type="api_server",
                                api_server_port=api_port,
-                               pd_num=2,
-                               e_num=1,
+                               pd_num=p_num+d_num,
+                               e_num=e_num,
                                env_dict=env_dict,
                                e_serve_args=e_server_args,
                                pd_serve_args=pd_server_args,
@@ -337,7 +337,7 @@ async def test_redis_proxy_1e1p1d_cross_tcp_mooncake_ipv4_001(model: str, tp_siz
         # aisbench test
         run_aisbench_cases(model=model,
                            port=api_port,
-                           card_num=3,
+                           card_num=e_num+p_num+d_num,
                            aisbench_cases=aisbench_cases,
                            verify=False,
                            save=False)
@@ -476,8 +476,8 @@ async def test_no_redis_2proxy_1e1p1d_tcp_mooncake_ipv6_001(model: str, tp_size:
                                kv_store_type="mooncake",
                                proxy_type="api_server",
                                api_server_port=api_port,
-                               pd_num=2,
-                               e_num=1,
+                               pd_num=p_num+d_num,
+                               e_num=e_num,
                                env_dict=env_dict,
                                e_serve_args=e_server_args,
                                pd_serve_args=pd_server_args,
@@ -486,7 +486,7 @@ async def test_no_redis_2proxy_1e1p1d_tcp_mooncake_ipv6_001(model: str, tp_size:
         # aisbench test
         run_aisbench_cases(model=model,
                            port=api_port,
-                           card_num=3,
+                           card_num=e_num+p_num+d_num,
                            aisbench_cases=aisbench_cases,
                            verify=False,
                            save=False)
@@ -627,8 +627,8 @@ async def test_no_redis_1proxy_1e1p1d_cross_tcp_mooncake_ipv4_001(model: str, tp
                                kv_store_type="mooncake",
                                proxy_type="api_server",
                                api_server_port=api_port,
-                               pd_num=2,
-                               e_num=1,
+                               pd_num=p_num+d_num,
+                               e_num=e_num,
                                env_dict=env_dict,
                                e_serve_args=e_server_args,
                                pd_serve_args=pd_server_args,
@@ -638,7 +638,7 @@ async def test_no_redis_1proxy_1e1p1d_cross_tcp_mooncake_ipv4_001(model: str, tp
         # aisbench test
         run_aisbench_cases(model=model,
                            port=api_port,
-                           card_num=3,
+                           card_num=e_num+p_num+d_num,
                            aisbench_cases=aisbench_cases,
                            verify=False,
                            save=False)
@@ -783,8 +783,8 @@ async def test_no_redis_2proxy_1e1p1d_cross_tcp_mooncake_ipv4_001(model: str, tp
                                kv_store_type="mooncake",
                                proxy_type="api_server",
                                api_server_port=api_port,
-                               pd_num=2,
-                               e_num=1,
+                               pd_num=p_num+d_num,
+                               e_num=e_num,
                                env_dict=env_dict,
                                e_serve_args=e_server_args,
                                pd_serve_args=pd_server_args,
@@ -794,7 +794,7 @@ async def test_no_redis_2proxy_1e1p1d_cross_tcp_mooncake_ipv4_001(model: str, tp
         # aisbench test
         run_aisbench_cases(model=model,
                            port=api_port,
-                           card_num=3,
+                           card_num=e_num+p_num+d_num,
                            aisbench_cases=aisbench_cases,
                            verify=False,
                            save=False)
