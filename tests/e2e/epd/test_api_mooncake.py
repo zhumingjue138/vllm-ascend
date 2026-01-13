@@ -774,7 +774,7 @@ async def test_proxy1e2pd_mooncake_tcp_ipv6_001(model: str, tp_size: int, datase
                                verify=False,
                                save=False)
         # test perf
-        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases)
+        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases, card_num=e_num+pd_num)
 
 REQUEST_RATE = [0.28, 0.56, 0.84]
 DATASET_NAME = ["simulate_truth_samereq"]
@@ -1945,7 +1945,7 @@ async def test_proxy1e1p1d_mooncake_tcp_ipv6_001(model: str, tp_size: int, datas
                                verify=False,
                                save=False)
         # test perf
-        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases)
+        run_aisbench_cases(model=model, port=api_port, aisbench_cases=aisbench_cases, card_num=e_num+p_num+d_num)
 
 REQUEST_RATE = [0.28, 0.56, 0.84]
 DATASET_NAME = ["simulate_truth"]
@@ -2047,7 +2047,7 @@ async def test_proxy_1e_2pd_cross_mooncake_tcp_ipv4_001(model: str, tp_size: int
         "case_type":
             "performance",
         "dataset_path":
-            os.path.join(DATASET_PATH, "simulate_truth_samereq"),
+            os.path.join(DATASET_PATH, "simulate_truth"),
         "request_conf":
             "vllm_api_stream_chat",
         "dataset_conf":
